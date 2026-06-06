@@ -1,0 +1,1318 @@
+\documentclass[a4paper,11pt]{article}
+
+%======================================================================
+%   MODE FLAGS (passed via command line)
+%======================================================================
+\newif\ifprintmode
+\ifdefined\printmodeflag
+    \printmodetrue
+\else
+    \printmodefalse
+\fi
+
+%======================================================================
+%   EXAM YEAR HEADER
+%======================================================================
+\newcommand{\examyear}[1]{\def\currentexamyear{#1}\markboth{#1}{#1}}
+\def\currentexamyear{}
+
+%======================================================================
+%	PREAMBLE & PACKAGES
+%======================================================================
+\usepackage{fontspec}
+\usepackage{polyglossia}
+\setmainlanguage{greek}
+\setotherlanguage{english}
+
+%======================================================================
+%   FONT SELECTION (Read/Print Mode)
+%======================================================================
+\setmainfont[
+    Path = fonts/atkinson-hyperlegible/fonts/ttf/,
+    Extension = .ttf,
+    UprightFont = *-Regular,
+    BoldFont = *-Bold,
+    ItalicFont = *-Italic,
+    BoldItalicFont = *-BoldItalic
+]{AtkinsonHyperlegible}
+\setsansfont[
+    Path = fonts/atkinson-hyperlegible/fonts/ttf/,
+    Extension = .ttf,
+    UprightFont = *-Regular,
+    BoldFont = *-Bold,
+    ItalicFont = *-Italic,
+    BoldItalicFont = *-BoldItalic
+]{AtkinsonHyperlegible}
+\setmonofont{DejaVu Sans Mono}
+\newfontfamily\greekfont[Scale=MatchLowercase]{DejaVu Serif}
+\newfontfamily\greekfontsf[Scale=MatchLowercase]{DejaVu Sans}
+
+\usepackage{amsmath,amsfonts,amssymb}
+\usepackage{listings}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{xcolor}
+\usepackage[most]{tcolorbox}
+
+%======================================================================
+%   GEOMETRY
+%======================================================================
+\usepackage[top=1.5cm, bottom=1.25cm, left=1.25cm, right=1.25cm, headheight=14pt]{geometry}
+
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows,positioning,calc,backgrounds,automata,matrix,arrows.meta,babel,patterns}
+\tcbuselibrary{breakable,skins}
+\usepackage{enumitem}
+
+%======================================================================
+%   COLOR DEFINITIONS (Read/Print Mode)
+%======================================================================
+\ifprintmode
+    % ═══════════════════════════════════════════════════════════════
+    % PRINT MODE: Pure White Backgrounds / High Contrast Grayscale
+    % ═══════════════════════════════════════════════════════════════
+    \definecolor{answerbox}{gray}{1.0}       % White
+    \definecolor{questionbg}{gray}{1.0}      % White
+    \definecolor{partbg}{gray}{1.0}          % White
+    \definecolor{answerframe}{gray}{0.1}     % Almost Black
+    \definecolor{questionframe}{gray}{0.0}   % Black
+    \definecolor{linkcolor}{gray}{0.0}       % Black
+    \definecolor{headercolor}{gray}{0.1}     
+    \definecolor{codelistingbg}{gray}{1.0}   % White
+
+    % Distinct Grayscale Palette (Extremely High Contrast Gradient)
+    % Designed to differentiate colors by shade intensity
+    \definecolor{red}{gray}{0.15}      % Nearly Black (Critical)
+    \definecolor{blue}{gray}{0.30}     % Dark Gray (Structural)
+    \definecolor{green}{gray}{0.65}    % Mid-Light Gray (Success)
+    \definecolor{cyan}{gray}{0.85}     % Very Light Gray (Auxiliary)
+    \definecolor{orange}{gray}{0.50}   % Mid Gray (Warning)
+    \definecolor{purple}{gray}{0.05}   % Blackest (Highlight)
+    \definecolor{teal}{gray}{0.40}     % Mid-Dark
+    \definecolor{brown}{gray}{0.25}    % Dark
+    \definecolor{olive}{gray}{0.45}    % Mid
+    \definecolor{magenta}{gray}{0.20}  % Very Dark
+    \definecolor{yellow}{gray}{0.90}   % Faintest
+
+    % PATTERN & FILL DEFINITIONS FOR PRINT MODE (High Legibility)
+    \tikzset{
+        fillcyan/.style={pattern=north east lines, pattern color=black!25},
+        fillorange/.style={pattern=dots, pattern color=black!35},
+        fillpurple/.style={pattern=crosshatch, pattern color=black!20},
+        fillgreen/.style={pattern=grid, pattern color=black!20},
+        fillred/.style={pattern=vertical lines, pattern color=black!30},
+        fillgray/.style={fill=gray!10},
+        fillblue/.style={pattern=fivepointed stars, pattern color=black!25},
+        fillwhite/.style={fill=white}
+    }
+
+    \tikzset{
+        every state/.append style={fill=gray!10, draw=black, thick},
+        accepting/.append style={fill=gray!30, draw=black, very thick}
+    }
+\else
+    % ═══════════════════════════════════════════════════════════════
+    % READ MODE: Colorful design for screen viewing
+    % ═══════════════════════════════════════════════════════════════
+    \definecolor{answerbox}{RGB}{230,245,230}
+    \definecolor{questionbg}{RGB}{240,248,255}
+    \definecolor{partbg}{RGB}{255,250,240}
+    \definecolor{answerframe}{RGB}{60,130,60}
+    \definecolor{questionframe}{RGB}{50,80,140}
+    \definecolor{linkcolor}{RGB}{0,0,180}
+    \definecolor{headercolor}{RGB}{80,80,80}
+    \definecolor{codelistingbg}{RGB}{245,245,245}
+
+    % SOLID FILL DEFINITIONS FOR READ MODE
+    \tikzset{
+        fillcyan/.style={fill=cyan!40},
+        fillorange/.style={fill=orange!50},
+        fillpurple/.style={fill=purple!40},
+        fillgreen/.style={fill=green!50},
+        fillred/.style={fill=red!20},
+        fillgray/.style={fill=gray!15},
+        fillblue/.style={fill=blue!5},
+        fillwhite/.style={fill=white}
+    }
+\fi
+
+\lstset{
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    frame=single,
+    backgroundcolor=\color{codelistingbg},
+    numbers=none,
+    showstringspaces=false
+}
+
+%======================================================================
+%   TCOLORBOX DEFINITIONS
+%======================================================================
+\newtcolorbox{answer}{
+    colback=answerbox,
+    colframe=answerframe,
+    title=Λύση,
+    fonttitle=\bfseries,
+    boxrule=0.8pt,
+    breakable,
+    arc=2pt,
+    left=6pt,
+    right=6pt,
+    top=4pt,
+    bottom=4pt
+}
+
+\newtcolorbox{question}[1][]{
+    colback=questionbg,
+    colframe=questionframe,
+    fonttitle=\bfseries,
+    title=#1,
+    boxrule=0.5pt,
+    breakable
+}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=linkcolor,
+    bookmarks=true,
+    bookmarksopen=true,
+    pdfauthor={VM},
+    pdftitle={Προσομοίωση \& Μοντελοποίηση Δυναμικών Συστημάτων - Λύσεις},
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[C]{\textcolor{headercolor}{\small\bfseries\leftmark}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+%======================================================================
+%	DOCUMENT START
+%======================================================================
+\begin{document}
+
+%----------------------------------------------------------------------
+%	TITLE PAGE
+%----------------------------------------------------------------------
+\thispagestyle{empty}
+\begin{center}
+    \vspace*{3cm}
+    {\Huge \textbf{Προσομοίωση \& Μοντελοποίηση Δυναμικών Συστημάτων}}\\[1em]
+    {\Large Συλλογή Παλαιών Θεμάτων \& Λύσεων}\\[3em]
+\end{center}
+
+\vfill
+\begin{center}
+{\small Επιμέλεια: VM}\\[1em]
+{\small Credits στα παιδιά που βγάλανε τις φωτογραφίες, στα παιδιά που βοήθησαν με τις λύσεις και στον Αστακομακαροναδα που ξεκίνησε την ιδέα.}\\[1em]
+{\footnotesize \textbf{Disclaimer:} Οι παρούσες λύσεις και εκφωνήσεις ενδέχεται να περιέχουν λάθη. Κάντε comment στο github μου για τα λάθη.}
+\end{center}
+
+\newpage
+
+%----------------------------------------------------------------------
+%	TABLE OF CONTENTS
+%----------------------------------------------------------------------
+\pdfbookmark[1]{Περιεχόμενα}{toc}
+\section*{Περιεχόμενα}
+
+\begin{itemize}
+    \item[\hyperlink{exam1}{\textbf{1.}}] \hyperlink{exam1}{\textbf{Σεπτέμβριος 2021}}
+    \item[\hyperlink{exam2}{\textbf{2.}}] \hyperlink{exam2}{\textbf{Φεβρουάριος 2023}}
+    \item[\hyperlink{exam3}{\textbf{3.}}] \hyperlink{exam3}{\textbf{Φεβρουάριος 2024}}
+    \item[\hyperlink{exam4}{\textbf{4.}}] \hyperlink{exam4}{\textbf{Ιούλιος 2024}}
+    \item[\hyperlink{exam5}{\textbf{5.}}] \hyperlink{exam5}{\textbf{Σεπτέμβριος 2024}}
+    \item[\hyperlink{exam6}{\textbf{6.}}] \hyperlink{exam6}{\textbf{Ιούλιος 2025}}
+\end{itemize}
+
+\newpage
+
+%----------------------------------------------------------------------
+%	EXERCISE MAP
+%----------------------------------------------------------------------
+\pdfbookmark[1]{Χάρτης Ασκήσεων}{map}
+\section*{Χάρτης Ασκήσεων ανά Κατηγορία}
+
+\begin{itemize}
+    \item \textbf{Γραμμική Παραμετροποίηση \& Φιλτράρισμα:}
+    \begin{itemize}
+        \item Φεβρουάριος 2023 (Θέμα 1 - Gradient Estimation)
+        \item Φεβρουάριος 2024 (Θέμα 1 - Gradient Estimation)
+        \item Ιούλιος 2024 (Θέμα 3 - Quantization \& $\sigma$-modification)
+        \item Σεπτέμβριος 2024 (Θέμα 3 - Event-Triggered \& Projection)
+        \item Ιούλιος 2025 (Θέμα 1 - RLS with Forgetting Factor, Θέμα 2 - State Space Projection)
+    \end{itemize}
+    \item \textbf{Μέθοδος Ελαχίστων Τετραγώνων (Least Squares):}
+    \begin{itemize}
+        \item Φεβρουάριος 2023 (Θέμα 2 - Offline LS Sigmoid)
+        \item Φεβρουάριος 2024 (Θέμα 2 - Offline LS Sigmoid)
+        \item Ιούλιος 2024 (Θέμα 1 - Offline LS Sigmoid)
+        \item Σεπτέμβριος 2024 (Θέμα 1 - Offline LS, PE Check)
+        \item Ιούλιος 2025 (Θέμα 1 - RLS with Forgetting Factor)
+    \end{itemize}
+    \item \textbf{Σχεδιασμός Προσαρμοστικών Παρατηρητών κατά Lyapunov:}
+    \begin{itemize}
+        \item Σεπτέμβριος 2021 (Θέμα 1 - Mixed Structural Observer)
+        \item Φεβρουάριος 2024 (Θέμα 2 - Lyapunov Mixed Observer)
+        \item Ιούλιος 2024 (Θέμα 2 - Constrained Lyapunov Mixed Observer)
+        \item Σεπτέμβριος 2024 (Θέμα 2 - Adaptive Observer)
+        \item Ιούλιος 2025 (Θέμα 3 - Lyapunov Mass-Damper-Spring, Disturbance analysis)
+    \end{itemize}
+    \item \textbf{Θεωρητικά Θέματα (Αξιολόγηση Μοντέλων \& Παραμετρική Ολίσθηση):}
+    \begin{itemize}
+        \item Φεβρουάριος 2024 (Θέμα 3 - LOO vs AIC, Parameter Drift causes)
+    \end{itemize}
+\end{itemize}
+
+\newpage
+
+%======================================================================
+%	EXAM SECTION 1: SEPTEMBER 2021
+%======================================================================
+\phantomsection
+\hypertarget{exam1}{}
+\pdfbookmark[1]{Σεπτέμβριος 2021}{exam1}
+\examyear{Σεπτέμβριος 2021}
+
+\begin{center}
+\textbf{\Large Σεπτέμβριος 2021 -- Θέματα \& Λύσεις}
+\end{center}
+
+\begin{question}[ΘΕΜΑ 1]
+Δίνεται το σύστημα πρώτης τάξης:
+\[
+y = \frac{K}{s+a} u
+\]
+με $a > 0$ άγνωστη παράμετρο και $K$ άγνωστο κέρδος.
+\begin{enumerate}[label=\alph*)]
+    \item Να γραφεί η διαφορική εξίσωση του συστήματος στο πεδίο του χρόνου.
+    \item Να βρεθεί η συνθήκη μόνιμης διέγερσης (Persistent Excitation - PE) για την αναγνώριση των δύο παραμέτρων $K$ και $a$.
+    \item Να σχεδιαστεί κατάλληλος προσαρμοστικός παρατηρητής μικτής δομής (Mixed Estimation) για την εκτίμηση της εξόδου $y$ και των παραμέτρων $K, a$, και να αποδειχθεί η ευστάθειά του μέσω Lyapunov.
+\end{enumerate}
+\end{question}
+
+\begin{answer}
+\textbf{α) Διαφορική εξίσωση στο πεδίο του χρόνου}
+
+Η συνάρτηση μεταφοράς του συστήματος είναι:
+\[
+\frac{y(s)}{u(s)} = \frac{K}{s+a} \implies s y(s) + a y(s) = K u(s)
+\]
+Στο πεδίο του χρόνου, η αντίστοιχη γραμμική διαφορική εξίσωση είναι:
+\[
+\dot{y}(t) = -a y(t) + K u(t)
+\]
+
+\vspace{1em}
+\textbf{β) Συνθήκη Μόνιμης Διέγερσης (Persistent Excitation - PE)}
+
+Για να αναγνωριστούν μονοσήμαντα οι $2$ άγνωστες παράμετροι $\theta^* = [a \quad K]^T$, η είσοδος $u(t)$ πρέπει να είναι μόνιμα διεγειρούμενη (PE) κατάλληλης τάξης.
+Για ένα γραμμικό σύστημα τάξης $n=1$ με $2n=2$ άγνωστες παραμέτρους, η είσοδος $u(t)$ απαιτείται να είναι PE τάξης τουλάχιστον $2$.
+Αυτό σημαίνει ότι το φάσμα συχνοτήτων του σήματος εισόδου πρέπει να περιέχει τουλάχιστον $1$ διακριτή μη μηδενική συχνότητα (δηλαδή τουλάχιστον $2$ φασματικές γραμμές στο διπλής πλευράς φάσμα).
+Μια κατάλληλη είσοδος είναι η ημιτονοειδής διέγερση:
+\[
+u(t) = A \sin(\omega_0 t), \quad A \neq 0, \ \omega_0 \neq 0
+\]
+
+\vspace{1em}
+\textbf{γ) Σχεδιασμός Προσαρμοστικού Παρατηρητή Μικτής Δομής (Mixed Observer)}
+
+Στη μικτή δομή εκτίμησης, χρησιμοποιούμε την πραγματική μετρούμενη έξοδο $y(t)$ στους όρους των παραμέτρων της δυναμικής του παρατηρητή. Ορίζουμε τον παρατηρητή ως:
+\[
+\dot{\hat{y}}(t) = -\hat{a}(t) y(t) + \hat{K}(t) u(t) + \theta_m \left( y(t) - \hat{y}(t) \right)
+\]
+όπου $\theta_m > 0$ είναι το κέρδος του παρατηρητή.
+Ορίζουμε το σφάλμα εκτίμησης της εξόδου $e_y(t) = y(t) - \hat{y}(t)$ και τα σφάλματα εκτίμησης των παραμέτρων $e_a(t) = \hat{a}(t) - a$, $e_K(t) = \hat{K}(t) - K$.
+
+Η δυναμική του σφάλματος εξόδου είναι:
+\begin{align*}
+\dot{e}_y &= \dot{y} - \dot{\hat{y}} \\
+&= \left( -a y + K u \right) - \left( -\hat{a} y + \hat{K} u + \theta_m e_y \right) \\
+&= (\hat{a} - a) y - (\hat{K} - K) u - \theta_m e_y \\
+&= e_a y - e_K u - \theta_m e_y
+\end{align*}
+Επιλέγουμε τη Lyapunov συνάρτηση:
+\[
+V(e_y, e_a, e_K) = \frac{1}{2} e_y^2 + \frac{1}{2\gamma_1} e_a^2 + \frac{1}{2\gamma_2} e_K^2
+\]
+με \(\gamma_1, \gamma_2 > 0\) τα κέρδη προσαρμογής. Η χρονική παράγωγος της $V$ είναι:
+\begin{align*}
+\dot{V} &= e_y \dot{e}_y + \frac{1}{\gamma_1} e_a \dot{e}_a + \frac{1}{\gamma_2} e_K \dot{e}_K \\
+&= e_y \left( e_a y - e_K u - \theta_m e_y \right) + \frac{1}{\gamma_1} e_a \dot{\hat{a}} + \frac{1}{\gamma_2} e_K \dot{\hat{K}} \\
+&= -\theta_m e_y^2 + e_a \left( e_y y + \frac{1}{\gamma_1} \dot{\hat{a}} \right) + e_K \left( -e_y u + \frac{1}{\gamma_2} \dot{\hat{K}} \right)
+\end{align*}
+Για να εξασφαλίσουμε $\dot{V} \le 0$, επιλέγουμε τους προσαρμοστικούς νόμους ώστε να μηδενίζονται οι όροι των παρενθέσεων:
+\begin{align*}
+\dot{\hat{a}} &= -\gamma_1 e_y y \\
+\dot{\hat{K}} &= \gamma_2 e_y u
+\end{align*}
+Με αυτή την επιλογή, η παράγωγος της Lyapunov γίνεται:
+\[
+\dot{V} = -\theta_m e_y^2 \le 0
+\]
+Από την παραπάνω ανισότητα προκύπτει ότι τα σφάλματα $e_y, e_a, e_K$ είναι φραγμένα. Επιπλέον, επειδή $u(t)$ και $y(t)$ είναι φραγμένα σήματα, η $\ddot{V}$ είναι επίσης φραγμένη. Από το Λήμμα Barbalat, προκύπτει ότι $\lim_{t \to \infty} e_y(t) = 0$. Αν επιπλέον ισχύει η συνθήκη PE για το σήμα εισόδου $u(t)$, τότε εξασφαλίζεται και η σύγκλιση των εκτιμήσεων των παραμέτρων στις πραγματικές τιμές τους, δηλαδή $e_a(t) \to 0$ και $e_K(t) \to 0$ καθώς $t \to \infty$.
+\end{answer}
+
+\newpage
+
+%======================================================================
+%	EXAM SECTION 2: FEBRUARY 2023
+%======================================================================
+\phantomsection
+\hypertarget{exam2}{}
+\pdfbookmark[1]{Φεβρουάριος 2023}{exam2}
+\examyear{Φεβρουάριος 2023}
+
+\begin{center}
+\textbf{\Large Φεβρουάριος 2023 -- Θέματα \& Λύσεις}
+\end{center}
+
+\begin{question}[ΘΕΜΑ 1 (Μονάδες: 6)]
+Δίνεται το σύστημα:
+\begin{align}
+    \dot{x}_1 &= x_2, \quad x_1(0) = 0 \\
+    \dot{x}_2 &= -a_1 x_2 - a_2 x_1 + b u, \quad x_2(0) = 0
+\end{align}
+όπου $y = x_1$ είναι η έξοδος, $u$ η είσοδος και $x_1, x_2$ οι μεταβλητές κατάστασης. Υποθέτουμε πως μόνο η είσοδος και η έξοδος είναι μετρήσιμα σήματα. Να σχεδιάσετε την αναδρομική μέθοδο κλίσης για να εκτιμήσετε τις σταθερές αλλά άγνωστες παραμέτρους $a_1, a_2, b$.
+\end{question}
+
+\begin{answer}
+\textbf{Βήμα 1: Εξαγωγή Διαφορικής Εξίσωσης Εισόδου-Εξόδου}
+
+Από τις εξισώσεις κατάστασης του συστήματος, έχουμε:
+\[ y = x_1 \implies \dot{y} = \dot{x}_1 = x_2 \]
+Αντικαθιστώντας στη δεύτερη εξίσωση κατάστασης:
+\[ \ddot{y} = \dot{x}_2 = -a_1 x_2 - a_2 x_1 + b u \implies \ddot{y} = -a_1 \dot{y} - a_2 y + b u \]
+Συνεπώς, η διαφορική εξίσωση εισόδου-εξόδου είναι:
+\[ \ddot{y} + a_1 \dot{y} + a_2 y = b u \]
+
+\textbf{Βήμα 2: Γραμμική Παραμετροποίηση με χρήση Φίλτρων}
+
+Επειδή οι παράγωγοι $\dot{y}$ και $\ddot{y}$ δεν είναι μετρήσιμες (η απευθείας αριθμητική παραγώγιση θορυβωδών σημάτων αποφεύγεται), εισάγουμε ένα σταθερό Hurwitz πολυώνυμο 2ης τάξης:
+\[ \Lambda(p) = p^2 + \lambda_1 p + \lambda_0 \]
+όπου $p = \frac{d}{dt}$ είναι ο διαφορικός τελεστής και $\lambda_1, \lambda_0 > 0$ είναι θετικές σχεδιαστικές σταθερές. 
+
+Διαιρώντας τη διαφορική εξίσωση με το $\Lambda(p)$, λαμβάνουμε:
+\[ \frac{p^2}{\Lambda(p)} y = -a_1 \frac{p}{\Lambda(p)} y - a_2 \frac{1}{\Lambda(p)} y + b \frac{1}{\Lambda(p)} u \]
+Αναγράφοντας το αριστερό μέλος ως:
+\[ \frac{p^2}{\Lambda(p)} y = \frac{p^2 - \Lambda(p) + \Lambda(p)}{\Lambda(p)} y = y - \frac{\lambda_1 p + \lambda_0}{\Lambda(p)} y \]
+Προκύπτει η ακόλουθη εξίσωση:
+\[ y = \frac{\lambda_1 p + \lambda_0}{\Lambda(p)} y - a_1 \frac{p}{\Lambda(p)} y - a_2 \frac{1}{\Lambda(p)} y + b \frac{1}{\Lambda(p)} u \]
+Ορίζουμε τα φιλτραρισμένα σήματα:
+\[ \phi_1 = \frac{p}{\Lambda(p)} y, \quad \phi_2 = \frac{1}{\Lambda(p)} y, \quad \phi_3 = \frac{1}{\Lambda(p)} u \]
+Τα σήματα αυτά παράγονται σε πραγματικό χρόνο από τα παρακάτω φίλτρα κατάστασης:
+\[ \dot{w}_{y} = \begin{bmatrix} -\lambda_1 & -\lambda_0 \\ 1 & 0 \end{bmatrix} w_y + \begin{bmatrix} 1 \\ 0 \end{bmatrix} y, \quad \begin{bmatrix} \phi_1 \\ \phi_2 \end{bmatrix} = \begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix} w_y \]
+\[ \dot{w}_{u} = \begin{bmatrix} -\lambda_1 & -\lambda_0 \\ 1 & 0 \end{bmatrix} w_u + \begin{bmatrix} 1 \\ 0 \end{bmatrix} u, \quad \phi_3 = \begin{bmatrix} 0 & 1 \end{bmatrix} w_u \]
+
+Έτσι, η εξίσωση γράφεται στη μορφή γραμμικής παραμετροποίησης (παραλείποντας τους εκθετικά φθίνοντες όρους $e^{-\Lambda t}$ που οφείλονται στις αρχικές συνθήκες των φίλτρων):
+\[ y(t) = (\lambda_1 - a_1) \phi_1(t) + (\lambda_0 - a_2) \phi_2(t) + b \phi_3(t) \]
+ή ισοδύναμα:
+\[ y(t) = \theta^{*T} \phi(t) \]
+όπου:
+\[ \theta^* = \begin{bmatrix} \theta_1^* \\ \theta_2^* \\ \theta_3^* \end{bmatrix} = \begin{bmatrix} \lambda_1 - a_1 \\ \lambda_0 - a_2 \\ b \end{bmatrix}, \quad \phi(t) = \begin{bmatrix} \phi_1(t) \\ \phi_2(t) \\ \phi_3(t) \end{bmatrix} \]
+Από τις εκτιμήσεις $\hat{\theta}_i(t)$ των παραμέτρων $\theta_i^*$, μπορούμε να υπολογίσουμε τις φυσικές παραμέτρους του συστήματος ως:
+\[ \hat{a}_1(t) = \lambda_1 - \hat{\theta}_1(t), \quad \hat{a}_2(t) = \lambda_0 - \hat{\theta}_2(t), \quad \hat{b}(t) = \hat{\theta}_3(t) \]
+
+\textbf{Βήμα 3: Σχεδίαση Αναδρομικού Αλγορίθμου Κλίσης (Gradient Method)}
+
+Ορίζουμε την εκτίμηση της εξόδου $\hat{y}(t)$ και το σφάλμα εκτίμησης της εξόδου $e_y(t)$ ως:
+\[ \hat{y}(t) = \hat{\theta}^T(t) \phi(t) \]
+\[ e_y(t) = y(t) - \hat{y}(t) = y(t) - \hat{\theta}^T(t) \phi(t) \]
+
+Ο νόμος προσαρμογής των παραμέτρων (μέθοδος κλίσης) ορίζεται ως:
+\[ \dot{\hat{\theta}}(t) = \Gamma e_y(t) \phi(t) \]
+όπου $\Gamma = \Gamma^T > 0$ είναι ο πίνακας θετικών κερδών προσαρμογής (συνήθως διαγώνιος $\Gamma = \text{diag}(\gamma_1, \gamma_2, \gamma_3)$ με $\gamma_i > 0$).
+
+\textbf{Βήμα 4: Ανάλυση Ευστάθειας}
+
+Ορίζουμε το σφάλμα παραμέτρων $e_\theta(t) = \hat{\theta}(t) - \theta^*$. Επειδή οι πραγματικές παράμετροι είναι σταθερές ($\dot{\theta}^* = 0$), έχουμε $\dot{e}_\theta(t) = \dot{\hat{\theta}}(t)$.
+Το σφάλμα εκτίμησης γράφεται ως:
+\[ e_y(t) = \theta^{*T} \phi(t) - \hat{\theta}^T(t) \phi(t) = -e_\theta^T(t) \phi(t) \]
+Συνεπώς, η δυναμική του σφάλματος παραμέτρων είναι:
+\[ \dot{e}_\theta(t) = -\Gamma \phi(t) \phi^T(t) e_\theta(t) \]
+Επιλέγουμε τη Lyapunov συνάρτηση:
+\[ V(e_\theta) = \frac{1}{2} e_\theta^T \Gamma^{-1} e_\theta \]
+Η χρονική παράγωγος της $V$ κατά μήκος των τροχιών του συστήματος είναι:
+\[ \dot{V}(e_\theta) = e_\theta^T \Gamma^{-1} \dot{e}_\theta = -e_\theta^T \phi(t) \phi^T(t) e_\theta = -(e_\theta^T \phi(t))^2 = -e_y^2(t) \le 0 \]
+Εφόσον $V \ge 0$ και $\dot{V} \le 0$, συμπεραίνουμε ότι:
+\begin{enumerate}
+    \item Η συνάρτηση $V(t)$ είναι φραγμένη ($V(t) \le V(0)$), άρα το σφάλμα παραμέτρων είναι φραγμένο: $e_\theta \in \mathcal{L}_\infty \implies \hat{\theta} \in \mathcal{L}_\infty$.
+    \item Ολοκληρώνοντας τη $\dot{V}$ από $0$ έως $\infty$:
+    \[ \int_0^\infty e_y^2(t) dt \le V(0) - V(\infty) < \infty \implies e_y \in \mathcal{L}_2 \]
+    \item Εφόσον η είσοδος $u$ και η έξοδος $y$ είναι φραγμένες ($u, y \in \mathcal{L}_\infty$) και το φίλτρο $\Lambda(p)$ είναι Hurwitz, προκύπτει ότι $\phi, \dot{\phi} \in \mathcal{L}_\infty$. Αυτό συνεπάγεται ότι $\dot{e}_y = \dot{y} - \dot{\hat{\theta}}^T \phi - \hat{\theta}^T \dot{\phi} \in \mathcal{L}_\infty$.
+    \item Από το Λήμμα του Barbalat, εφόσον $e_y \in \mathcal{L}_2$ και $\dot{e}_y \in \mathcal{L}_\infty$, προκύπτει ότι $\lim_{t \to \infty} e_y(t) = 0$.
+    \item Αν επιπρόσθετα το διάνυσμα $\phi(t)$ ικανοποιεί τη συνθήκη Επιμένουσας Διέγερσης (Persistent Excitation - PE), δηλαδή υπάρχουν σταθερές $\alpha_0, \alpha_1, T_0 > 0$ τέτοιες ώστε:
+    \[ \alpha_1 I \ge \int_{t}^{t+T_0} \phi(\tau)\phi^T(\tau) d\tau \ge \alpha_0 I, \quad \forall t \ge 0 \]
+    τότε το σφάλμα παραμέτρων συγκλίνει εκθετικά στο μηδέν: $\lim_{t \to \infty} e_\theta(t) = 0 \implies \lim_{t \to \infty} \hat{\theta}(t) = \theta^*$.
+\end{enumerate}
+\end{answer}
+
+\begin{question}[ΘΕΜΑ 2 (Μονάδες: 4)]
+Δίνεται το σύστημα:
+\begin{equation}
+    y = \frac{1}{1 + e^{-\lambda x}}
+\end{equation}
+όπου $x > 0$ η βαθμωτή είσοδος, $y$ η βαθμωτή έξοδος και $\lambda > 0$ μια σταθερή αλλά άγνωστη παράμετρος. Να διερευνηθεί αν μπορεί να εφαρμοστεί η μέθοδος ελαχίστων τετραγώνων μη-πραγματικού χρόνου για την εκτίμηση του $\lambda$.
+\end{question}
+
+\begin{answer}
+\textbf{Βήμα 1: Διερεύνηση Γραμμικής Παραμετροποίησης}
+
+Η δοθείσα σχέση είναι μη γραμμική ως προς την άγνωστη παράμετρο $\lambda$. Για να εφαρμοστεί η μέθοδος ελαχίστων τετραγώνων, πρέπει να διερευνήσουμε αν το σύστημα μπορεί να μετασχηματιστεί σε γραμμικά παραμετροποιημένη μορφή:
+\[ z = \theta^* \phi \]
+όπου $z$ είναι μια μετρήσιμη/γνωστή ποσότητα, $\phi$ είναι ο παλινδρομητής (regressor) και $\theta^*$ είναι η υπό εκτίμηση παράμετρος (που σχετίζεται με τη $\lambda$).
+
+Λύνουμε τη σχέση ως προς τον εκθετικό όρο:
+\[ y = \frac{1}{1 + e^{-\lambda x}} \implies 1 + e^{-\lambda x} = \frac{1}{y} \implies e^{-\lambda x} = \frac{1}{y} - 1 = \frac{1-y}{y} \]
+Εφόσον $\lambda > 0$ και $x > 0$, έχουμε $-\lambda x < 0$, άρα $0 < e^{-\lambda x} < 1$. Αυτό απαιτεί:
+\[ 0 < \frac{1-y}{y} < 1 \implies 0 < 1-y < y \implies \frac{1}{2} < y < 1 \]
+Εφόσον η έξοδος $y$ ικανοποιεί αυτόν τον περιορισμό, μπορούμε να εφαρμόσουμε τον φυσικό λογάριθμο (ln) και στα δύο μέλη της εξίσωσης:
+\[ \ln\left(e^{-\lambda x}\right) = \ln\left(\frac{1-y}{y}\right) \implies -\lambda x = \ln\left(\frac{1-y}{y}\right) \implies \ln\left(\frac{y}{1-y}\right) = \lambda x \]
+Ορίζουμε:
+\[ z = \ln\left(\frac{y}{1-y}\right), \quad \phi = x, \quad \theta^* = \lambda \]
+Τότε η εξίσωση παίρνει τη γραμμικά παραμετροποιημένη μορφή:
+\[ z = \theta^* \phi \]
+Η οποία είναι γραμμική ως προς την άγνωστη παράμετρο $\theta^* = \lambda$.
+
+\textbf{Βήμα 2: Διατύπωση της Μεθόδου Ελαχίστων Τετραγώνων Batch (Μη-Πραγματικού Χρόνου)}
+
+Έστω ότι έχουμε στη διάθεσή μας ένα σύνολο $N$ μετρήσεων εισόδου-εξόδου σε διακριτές χρονικές στιγμές $t_i$, $i = 1, 2, \dots, N$:
+\[ \{x(t_i), y(t_i)\}_{i=1}^N \]
+Για κάθε μέτρηση $i$, υπολογίζουμε τις τιμές:
+\[ z(t_i) = \ln\left(\frac{y(t_i)}{1 - y(t_i)}\right), \quad \phi(t_i) = x(t_i) \]
+Ορίζουμε τα διανύσματα μετρήσεων:
+\[ Z = \begin{bmatrix} z(t_1) \\ z(t_2) \\ \vdots \\ z(t_N) \end{bmatrix} \in \mathbb{R}^N, \quad \Phi = \begin{bmatrix} \phi(t_1) \\ \phi(t_2) \\ \vdots \\ \phi(t_N) \end{bmatrix} = \begin{bmatrix} x(t_1) \\ x(t_2) \\ \vdots \\ x(t_N) \end{bmatrix} \in \mathbb{R}^N \]
+Η σχέση ανάμεσα στα διανύσματα είναι:
+\[ Z = \lambda \Phi + E \]
+όπου $E$ είναι το διάνυσμα των σφαλμάτων μέτρησης/θορύβου.
+
+Η μέθοδος ελαχίστων τετραγώνων στοχεύει στην ελαχιστοποίηση της συνάρτησης κόστους (άθροισμα τετραγώνων των σφαλμάτων):
+\[ J(\lambda) = \sum_{i=1}^N \left( z(t_i) - \lambda \phi(t_i) \right)^2 = (Z - \lambda \Phi)^T (Z - \lambda \Phi) \]
+Θέτοντας την παράγωγο της $J(\lambda)$ ως προς $\lambda$ ίση με το μηδέν:
+\[ \frac{d J(\lambda)}{d \lambda} = -2 \Phi^T (Z - \lambda \Phi) = 0 \implies \Phi^T Z - \lambda \Phi^T \Phi = 0 \]
+Αν υποθέσουμε ότι $\Phi^T \Phi = \sum_{i=1}^N x(t_i)^2 > 0$, η βέλτιστη εκτίμηση ελαχίστων τετραγώνων $\hat{\lambda}$ δίνεται από τη σχέση:
+\[ \hat{\lambda} = (\Phi^T \Phi)^{-1} \Phi^T Z = \frac{\sum_{i=1}^N x(t_i) \ln\left(\frac{y(t_i)}{1 - y(t_i)}\right)}{\sum_{i=1}^N x(t_i)^2} \]
+
+\textbf{Βήμα 3: Προϋποθέσεις Εφαρμογής της Μεθόδου}
+
+Η εφαρμογή της μεθόδου ελαχίστων τετραγώνων μη-πραγματικού χρόνου είναι εφικτή υπό τις ακόλουθες προϋποθέσεις:
+\begin{enumerate}
+    \item \textbf{Περιορισμός Τιμών Εξόδου:} Όλες οι μετρήσεις της εξόδου πρέπει να ικανοποιούν αυστηρά τη σχέση:
+    \[ \frac{1}{2} < y(t_i) < 1, \quad \forall i=1,\dots,N \]
+    Αν λόγω θορύβου μέτρησης κάποια τιμή $y(t_i)$ βρεθεί εκτός του διαστήματος $(0, 1)$ ή $\le 0.5$ (καθώς $\lambda > 0, x > 0$), ο όρος $\ln\left(\frac{y(t_i)}{1-y(t_i)}\right)$ δεν θα ορίζεται ή θα είναι ασύμβατος με τις υποθέσεις του συστήματος.
+    \item \textbf{Συνθήκη Διέγερσης:} Πρέπει να ισχύει:
+    \[ \sum_{i=1}^N x(t_i)^2 > 0 \]
+    Δηλαδή, τουλάχιστον μία μέτρηση της εισόδου πρέπει να είναι μη μηδενική ($x(t_i) \ne 0$), ώστε ο πίνακας $\Phi^T \Phi$ να είναι αντιστρέψιμος.
+\end{enumerate}
+\end{answer}
+
+\newpage
+
+%======================================================================
+%	EXAM SECTION 3: FEBRUARY 2024
+%======================================================================
+\phantomsection
+\hypertarget{exam3}{}
+\pdfbookmark[1]{Φεβρουάριος 2024}{exam3}
+\examyear{Φεβρουάριος 2024}
+
+\begin{center}
+\textbf{\Large Φεβρουάριος 2024 -- Θέματα \& Λύσεις}
+\end{center}
+
+\begin{question}[ΘΕΜΑ 1 (Μονάδες: 4)]
+Δίνεται το σύστημα:
+\begin{align}
+    \dot{x}_1 &= x_2, \quad x_1(0) = 0 \\
+    \dot{x}_2 &= -a_1 x_2 - a_2 x_1 + b u, \quad x_2(0) = 0
+\end{align}
+όπου $y = x_1$ είναι η έξοδος, $u$ η είσοδος και $x_1, x_2$ οι μεταβλητές κατάστασης. Υποθέτουμε πως μόνο η είσοδος και η έξοδος είναι μετρήσιμα σήματα. Να σχεδιάσετε την αναδρομική μέθοδο κλίσης για να εκτιμήσετε τις σταθερές αλλά άγνωστες παραμέτρους $a_1, a_2, b$.
+\end{question}
+
+\begin{answer}
+\textbf{Βήμα 1: Εξαγωγή Διαφορικής Εξίσωσης Εισόδου-Εξόδου}
+
+Από τις εξισώσεις κατάστασης του συστήματος, έχουμε:
+\[ y = x_1 \implies \dot{y} = \dot{x}_1 = x_2 \]
+Αντικαθιστώντας στη δεύτερη εξίσωση κατάστασης:
+\[ \ddot{y} = \dot{x}_2 = -a_1 x_2 - a_2 x_1 + b u \implies \ddot{y} = -a_1 \dot{y} - a_2 y + b u \]
+Συνεπώς, η διαφορική εξίσωση εισόδου-εξόδου είναι:
+\[ \ddot{y} + a_1 \dot{y} + a_2 y = b u \]
+
+\textbf{Βήμα 2: Γραμμική Παραμετροποίηση με χρήση Φίλτρων}
+
+Εισάγουμε ένα σταθερό Hurwitz πολυώνυμο 2ης τάξης:
+\[ \Lambda(p) = p^2 + \lambda_1 p + \lambda_0 \]
+όπου $p = \frac{d}{dt}$ είναι ο διαφορικός τελεστής και $\lambda_1, \lambda_0 > 0$ είναι θετικές σχεδιαστικές σταθερές.
+
+Διαιρώντας τη διαφορική εξίσωση με το $\Lambda(p)$, λαμβάνουμε:
+\[ \frac{p^2}{\Lambda(p)} y = -a_1 \frac{p}{\Lambda(p)} y - a_2 \frac{1}{\Lambda(p)} y + b \frac{1}{\Lambda(p)} u \]
+Αναγράφοντας το αριστερό μέλος ως:
+\[ \frac{p^2}{\Lambda(p)} y = \frac{p^2 - \Lambda(p) + \Lambda(p)}{\Lambda(p)} y = y - \frac{\lambda_1 p + \lambda_0}{\Lambda(p)} y \]
+Προκύπτει η εξίσωση:
+\[ y = \frac{\lambda_1 p + \lambda_0}{\Lambda(p)} y - a_1 \frac{p}{\Lambda(p)} y - a_2 \frac{1}{\Lambda(p)} y + b \frac{1}{\Lambda(p)} u \]
+Ορίζουμε τα φιλτραρισμένα σήματα:
+\[ \phi_1 = \frac{p}{\Lambda(p)} y, \quad \phi_2 = \frac{1}{\Lambda(p)} y, \quad \phi_3 = \frac{1}{\Lambda(p)} u \]
+Έτσι, η εξίσωση γράφεται στη μορφή γραμμικής παραμετροποίησης (παραλείποντας τους εκθετικά φθίνοντες όρους $e^{-\Lambda t}$ που οφείλονται στις αρχικές συνθήκες των φίλτρων):
+\[ y(t) = (\lambda_1 - a_1) \phi_1(t) + (\lambda_0 - a_2) \phi_2(t) + b \phi_3(t) \]
+ή ισοδύναμα:
+\[ y(t) = \theta^{*T} \phi(t) \]
+όπου:
+\[ \theta^* = \begin{bmatrix} \theta_1^* \\ \theta_2^* \\ \theta_3^* \end{bmatrix} = \begin{bmatrix} \lambda_1 - a_1 \\ \lambda_0 - a_2 \\ b \end{bmatrix}, \quad \phi(t) = \begin{bmatrix} \phi_1(t) \\ \phi_2(t) \\ \phi_3(t) \end{bmatrix} \]
+Από τις εκτιμήσεις $\hat{\theta}_i(t)$ των παραμέτρων $\theta_i^*$, υπολογίζουμε τις φυσικές παραμέτρους του συστήματος ως:
+\[ \hat{a}_1(t) = \lambda_1 - \hat{\theta}_1(t), \quad \hat{a}_2(t) = \lambda_0 - \hat{\theta}_2(t), \quad \hat{b}(t) = \hat{\theta}_3(t) \]
+
+\textbf{Βήμα 3: Σχεδίαση Αναδρομικού Αλγορίθμου Κλίσης (Gradient Method)}
+
+Ορίζουμε την εκτίμηση της εξόδου $\hat{y}(t)$ και το σφάλμα εκτίμησης της εξόδου $e_y(t)$ ως:
+\[ \hat{y}(t) = \hat{\theta}^T(t) \phi(t) \]
+\[ e_y(t) = y(t) - \hat{y}(t) = y(t) - \hat{\theta}^T(t) \phi(t) \]
+
+Ο νόμος προσαρμογής των παραμέτρων (μέθοδος κλίσης) ορίζεται ως:
+\[ \dot{\hat{\theta}}(t) = \Gamma e_y(t) \phi(t) \]
+όπου $\Gamma = \Gamma^T > 0$ είναι ο πίνακας θετικών κερδών προσαρμογής.
+
+\textbf{Βήμα 4: Ανάλυση Ευστάθειας}
+
+Ορίζουμε το σφάλμα παραμέτρων $e_\theta(t) = \hat{\theta}(t) - \theta^*$. Επειδή οι πραγματικές παράμετροι είναι σταθερές ($\dot{\theta}^* = 0$), έχουμε $\dot{e}_\theta(t) = \dot{\hat{\theta}}(t)$.
+Το σφάλμα εκτίμησης γράφεται ως:
+\[ e_y(t) = \theta^{*T} \phi(t) - \hat{\theta}^T(t) \phi(t) = -e_\theta^T(t) \phi(t) \]
+Συνεπώς, η δυναμική του σφάλματος παραμέτρων είναι:
+\[ \dot{e}_\theta(t) = -\Gamma \phi(t) \phi^T(t) e_\theta(t) \]
+Επιλέγουμε τη Lyapunov συνάρτηση:
+\[ V(e_\theta) = \frac{1}{2} e_\theta^T \Gamma^{-1} e_\theta \]
+Η χρονική παράγωγος της $V$ είναι:
+\[ \dot{V}(e_\theta) = e_\theta^T \Gamma^{-1} \dot{e}_\theta = -e_\theta^T \phi(t) \phi^T(t) e_\theta = -(e_\theta^T \phi(t))^2 = -e_y^2(t) \le 0 \]
+Εφόσον $V \ge 0$ και $\dot{V} \le 0$, συμπεραίνουμε ότι:
+\begin{enumerate}
+    \item Η συνάρτηση $V(t)$ είναι φραγμένη ($V(t) \le V(0)$), άρα το σφάλμα παραμέτρων είναι φραγμένο: $e_\theta \in \mathcal{L}_\infty \implies \hat{\theta} \in \mathcal{L}_\infty$.
+    \item Ολοκληρώνοντας τη $\dot{V}$ από $0$ έως $\infty$:
+    \[ \int_0^\infty e_y^2(t) dt \le V(0) - V(\infty) < \infty \implies e_y \in \mathcal{L}_2 \]
+    \item Εφόσον $u, y \in \mathcal{L}_\infty$, προκύπτει ότι $\phi, \dot{\phi} \in \mathcal{L}_\infty$, άρα $\dot{e}_y \in \mathcal{L}_\infty$.
+    \item Από το Λήμμα του Barbalat, προκύπτει ότι $\lim_{t \to \infty} e_y(t) = 0$.
+    \item Αν επιπρόσθετα το διάνυσμα $\phi(t)$ είναι Επιμένουσας Διέγερσης (PE), τότε $\lim_{t \to \infty} e_\theta(t) = 0 \implies \lim_{t \to \infty} \hat{\theta}(t) = \theta^*$.
+\end{enumerate}
+\end{answer}
+
+\begin{question}[ΘΕΜΑ 2 (Μονάδες: 3)]
+Δίνεται το σύστημα:
+\begin{equation}
+    y = \frac{1}{1 + e^{-\lambda x}}
+\end{equation}
+όπου $x \in \mathbb{R}$ η είσοδος, $y \in \mathbb{R}$ η έξοδος και $\lambda \in \mathbb{R}$ μια σταθερή αλλά άγνωστη παράμετρος. Να διερευνηθεί αν μπορεί να εφαρμοστεί η μέθοδος ελαχίστων τετραγώνων μη-πραγματικού χρόνου για την εκτίμηση του $\lambda$.
+\end{question}
+
+\begin{answer}
+\textbf{Βήμα 1: Διερεύνηση Γραμμικής Παραμετροποίησης}
+
+Η δοθείσα σχέση είναι μη γραμμική ως προς την άγνωστη παράμετρο $\lambda$. Για να εφαρμοστεί η μέθοδος ελαχίστων τετραγώνων, πρέπει να μετασχηματίσουμε το σύστημα σε γραμμικά παραμετροποιημένη μορφή:
+\[ z = \theta^* \phi \]
+
+Λύνουμε τη σχέση ως προς τον εκθετικό όρο:
+\[ y = \frac{1}{1 + e^{-\lambda x}} \implies 1 + e^{-\lambda x} = \frac{1}{y} \implies e^{-\lambda x} = \frac{1-y}{y} \]
+Εφόσον $\lambda, x \in \mathbb{R}$, ο όρος $e^{-\lambda x}$ είναι πάντα θετικός ($e^{-\lambda x} > 0$), γεγονός που απαιτεί:
+\[ \frac{1-y}{y} > 0 \implies 0 < y < 1 \]
+Αυτός ο περιορισμός ικανοποιείται πάντα από τη φύση της σιγμοειδούς συνάρτησης (η έξοδος $y$ βρίσκεται πάντα στο διάστημα $(0,1)$). Επομένως, εφαρμόζοντας τον φυσικό λογάριθμο (ln) και στα δύο μέλη:
+\[ \ln\left(e^{-\lambda x}\right) = \ln\left(\frac{1-y}{y}\right) \implies -\lambda x = \ln\left(\frac{1-y}{y}\right) \implies \ln\left(\frac{y}{1-y}\right) = \lambda x \]
+Ορίζουμε:
+\[ z = \ln\left(\frac{y}{1-y}\right), \quad \phi = x, \quad \theta^* = \lambda \]
+Τότε προκύπτει η γραμμική παραμετροποίηση:
+\[ z = \theta^* \phi \]
+
+\textbf{Βήμα 2: Διατύπωση της Μεθόδου Ελαχίστων Τετραγώνων Batch (Μη-Πραγματικού Χρόνου)}
+
+Με ένα σύνολο $N$ μετρήσεων $\{x(t_i), y(t_i)\}_{i=1}^N$, υπολογίζουμε για κάθε μέτρηση:
+\[ z(t_i) = \ln\left(\frac{y(t_i)}{1 - y(t_i)}\right), \quad \phi(t_i) = x(t_i) \]
+Ορίζουμε τα διανύσματα μετρήσεων $Z = [z(t_1), \dots, z(t_N)]^T$ and $\Phi = [x(t_1), \dots, x(t_N)]^T$.
+Η συνάρτηση κόστους ελαχίστων τετραγώνων είναι:
+\[ J(\lambda) = \sum_{i=1}^N \left( z(t_i) - \lambda \phi(t_i) \right)^2 = (Z - \lambda \Phi)^T (Z - \lambda \Phi) \]
+Θέτοντας την παράγωγο της $J(\lambda)$ ως προς $\lambda$ ίση με το μηδέν προκύπτει η βέλτιστη offline εκτίμηση:
+\[ \hat{\lambda} = (\Phi^T \Phi)^{-1} \Phi^T Z = \frac{\sum_{i=1}^N x(t_i) \ln\left(\frac{y(t_i)}{1 - y(t_i)}\right)}{\sum_{i=1}^N x(t_i)^2} \]
+
+\textbf{Βήμα 3: Προϋποθέσεις Εφαρμογής της Μεθόδου}
+
+Η εφαρμογή της μεθόδου ελαχίστων τετραγώνων μη-πραγματικού χρόνου είναι εφικτή υπό τις εξής προϋποθέσεις:
+\begin{enumerate}
+    \item \textbf{Απουσία Θορύβου που οδηγεί εκτός Ορίων:} Όλες οι μετρήσεις της εξόδου πρέπει να ικανοποιούν αυστηρά τη σχέση $0 < y(t_i) < 1$. Αν λόγω ισχυρού θορύβου μέτρησης κάποια τιμή $y(t_i)$ βρεθεί εκτός του ανοικτού διαστήματος $(0, 1)$ (δηλαδή $y(t_i) \le 0$ ή $y(t_i) \ge 1$), ο όρος $\ln\left(\frac{y(t_i)}{1-y(t_i)}\right)$ δεν θα ορίζεται στο πεδίο των πραγματικών αριθμών.
+    \item \textbf{Συνθήκη Διέγερσης:} Πρέπει να ισχύει $\sum_{i=1}^N x(t_i)^2 > 0$ (τουλάχιστον μία μέτρηση της εισόδου να είναι μη μηδενική) ώστε να είναι δυνατή η διαίρεση με το $\Phi^T \Phi$.
+\end{enumerate}
+\end{answer}
+
+\begin{question}[ΘΕΜΑ 3 (Μονάδες: 3)]
+\begin{enumerate}[label=\alph*)]
+    \item Ένας μηχανικός έχει στη διάθεσή του τρία μοντέλα που περιγράφουν το ίδιο υποσύστημα μιας βιομηχανικής εγκατάστασης και καλείται μέσω αξιολόγησης να επιλέξει το καλύτερο. Ποια μέθοδος αξιολόγησης ενδείκνυται α) η «άφησε ένα έξω» ή β) το κριτήριο του Akaike; Να αιτιολογήσετε την επιλογή σας.
+    \item Ποια τα αίτια εμφάνισης του φαινομένου της παραμετρικής ολίσθησης;
+\end{enumerate}
+\end{question}
+
+\begin{answer}
+\textbf{α) Επιλογή Μεθόδου Αξιολόγησης Μοντέλου}
+
+Για τη συγκεκριμένη εφαρμογή (μοντελοποίηση υποσυστήματος βιομηχανικής εγκατάστασης), η καταλληλότερη μέθοδος εξαρτάται από τη φύση και το μέγεθος των διαθέσιμων δεδομένων. Ωστόσο, στην ταυτοποίηση συστημάτων (System Identification) για βιομηχανικές εγκαταστάσεις προτιμάται κατά κανόνα το **Κριτήριο Πληροφορίας του Akaike (AIC)**, για τους εξής λόγους:
+\begin{itemize}
+    \item \textbf{Διατήρηση της Χρονικής Συσχέτισης (Time-Series Dependency):} Τα δεδομένα μιας βιομηχανικής εγκατάστασης είναι χρονοσειρές, όπου κάθε δείγμα συσχετίζεται έντονα με τα προηγούμενα και επόμενα. Η μέθοδος «άφησε ένα έξω» (Leave-One-Out - LOO) υποθέτει ότι τα δεδομένα είναι ανεξάρτητα και ισόνομα κατανεμημένα (i.i.d.). Η αφαίρεση ενός μεμονωμένου χρονικού δείγματος παραβιάζει αυτή τη δομή και οδηγεί σε εξαιρετικά υποεκτιμημένο σφάλμα πρόβλεψης (overoptimistic validation error), καθώς τα γειτονικά δείγματα περιέχουν σχεδόν την ίδια πληροφορία.
+    \item \textbf{Ποινή Πολυπλοκότητας (Overfitting Penalty):} Το AIC εισάγει μια σαφή μαθηματική ποινή για τον αριθμό των παραμέτρων του μοντέλου ($2k$), επιτρέποντας την επιλογή ενός μοντέλου που ισορροπεί την ακρίβεια (goodness of fit) με την απλότητα, αποτρέποντας την υπερπροσαρμογή (overfitting).
+    \item \textbf{Υπολογιστικό Κόστος:} Αν και με 3 μοντέλα το LOO είναι εφικτό, σε δυναμικά μοντέλα μεγάλης τάξης η επαναλαμβανόμενη εκπαίδευση $N$ φορές (όπου $N$ το πλήθος των δειγμάτων, συνήθως χιλιάδες σε βιομηχανικά δεδομένα) είναι εξαιρετικά κοστοβόρα. Το AIC απαιτεί την εκπαίδευση του κάθε μοντέλου μόνο μία φορά.
+\end{itemize}
+\emph{Σημείωση:} Αν ο μηχανικός ήθελε να κάνει εμπειρική επικύρωση (validation), η ενδεδειγμένη μέθοδος θα ήταν η χρήση ενός τελείως ξεχωριστού συνόλου δεδομένων επικύρωσης (validation set / cross-validation με διαχωρισμό σε μεγάλα τμήματα χρόνου - block CV) και όχι η LOO.
+
+\textbf{β) Αίτια Εμφάνισης της Παραμετρικής Ολίσθησης (Parameter Drift)}
+
+Η παραμετρική ολίσθηση είναι ένα φαινόμενο αστάθειας σε προσαρμοστικούς αλγόριθμους εκτίμησης παραμέτρων σε πραγματικό χρόνο. Τα κύρια αίτια εμφάνισής της είναι:
+\begin{enumerate}
+    \item \textbf{Έλλειψη Επιμένουσας Διέγερσης (Lack of Persistent Excitation - PE):} Όταν το σήμα εισόδου $u(t)$ δεν είναι αρκετά πλούσιο σε συχνότητες (δεν διεγείρει όλους τους τρόπους λειτουργίας του συστήματος), το διάνυσμα παλινδρόμησης $\phi(t)$ δεν ικανοποιεί τη συνθήκη PE. Αυτό σημαίνει ότι υπάρχουν κατευθύνσεις στο χώρο των παραμέτρων όπου το σφάλμα εκτίμησης είναι μηδενικό, επιτρέποντας στις παραμέτρους να μεταβάλλονται ανεξέλεγκτα χωρίς να επηρεάζουν το σφάλμα.
+    \item \textbf{Παρουσία Εξωτερικών Διαταραχών ή Θορύβου Μέτρησης (Disturbances / Noise):} Όταν το πραγματικό σύστημα επηρεάζεται από εξωτερικές διαταραχές $d(t)$ ή θόρυβο μετρήσεων, ο κλασικός αλγόριθμος εκτίμησης προσπαθεί να «ταιριάξει» αυτόν τον θόρυβο. Αν δεν υπάρχει PE, η παρουσία ακόμη και πολύ μικρού θορύβου/διαταραχής μπορεί να οδηγήσει σε συνεχή συσσώρευση σφάλματος και τελικά σε ολίσθηση των παραμέτρων προς το άπειρο.
+    \item \textbf{Μη Μοντελοποιημένη Δυναμική (Unmodeled Dynamics):} Η ύπαρξη δυναμικών υψηλής συχνότητας που έχουν παραλειφθεί από το μοντέλο σχεδιασμού (π.χ. παράσιτα, καθυστερήσεις) συμπεριφέρεται ως φραγμένη διαταραχή, η οποία διεγείρει τον αλγόριθμο προσαρμογής και προκαλεί ολίσθηση των παραμέτρων.
+\end{enumerate}
+\end{answer}
+
+\newpage
+
+%======================================================================
+%	EXAM SECTION 4: JULY 2024
+%======================================================================
+\phantomsection
+\hypertarget{exam4}{}
+\pdfbookmark[1]{Ιούλιος 2024}{exam4}
+\examyear{Ιούλιος 2024}
+
+\begin{center}
+\textbf{\Large Ιούλιος 2024 -- Θέματα \& Λύσεις}
+\end{center}
+
+\begin{question}[ΘΕΜΑ 1 (Μονάδες: 3)]
+Δίνεται το σύστημα:
+\begin{equation}
+    y = \frac{1}{1 + e^{-\theta^* u}}
+\end{equation}
+όπου $y \in \mathbb{R}$ είναι η έξοδος, $u \in \mathbb{R}$ η είσοδος και $\theta^* \in \mathbb{R}$ μια σταθερή αλλά άγνωστη παράμετρος.
+\begin{enumerate}[label=\alph*)]
+    \item Να διερευνηθεί αν μπορεί να εφαρμοστεί η μέθοδος ελαχίστων τετραγώνων για την εκτίμηση της παραμέτρου $\theta^*$. Να αιτιολογήσετε την απάντησή σας.
+    \item Να διερευνηθεί υπό ποιες προϋποθέσεις η μέθοδος κλίσης με είσοδο $u(t) = -\varphi(t)$ εγγυάται ότι $\lim_{t \to \infty} \hat{\theta}(t) = \theta^*$.
+\end{enumerate}
+\end{question}
+
+\begin{answer}
+\textbf{α) Διερεύνηση Εφαρμογής της Μεθόδου Ελαχίστων Τετραγώνων}
+
+Η δοθείσα εξίσωση είναι μη γραμμική ως προς την άγνωστη παράμετρο $\theta^*$. Επιχειρούμε να τη μετασχηματίσουμε σε γραμμικά παραμετροποιημένη μορφή $z = \theta^* \phi$:
+\[ y = \frac{1}{1 + e^{-\theta^* u}} \implies 1 + e^{-\theta^* u} = \frac{1}{y} \implies e^{-\theta^* u} = \frac{1-y}{y} \]
+Εφόσον $\theta^*, u \in \mathbb{R}$, η ποσότητα $e^{-\theta^* u}$ είναι πάντα αυστηρά θετική. Αυτό επιβάλλει τον εξής περιορισμό για την έξοδο $y$:
+\[ \frac{1-y}{y} > 0 \implies 0 < y < 1 \]
+Λόγω της φύσης της σιγμοειδούς συνάρτησης, η έξοδος $y$ βρίσκεται πάντα στο ανοικτό διάστημα $(0,1)$. Επομένως, εφαρμόζοντας τον φυσικό λογάριθμο (ln) λαμβάνουμε:
+\[ \ln\left(e^{-\theta^* u}\right) = \ln\left(\frac{1-y}{y}\right) \implies -\theta^* u = \ln\left(\frac{1-y}{y}\right) \implies \ln\left(\frac{y}{1-y}\right) = \theta^* u \]
+Ορίζουμε:
+\[ z = \ln\left(\frac{y}{1-y}\right), \quad \phi = u \]
+Έτσι προκύπτει η γραμμική παραμετροποίηση:
+\[ z = \theta^* \phi \]
+Με βάση αυτή τη μορφή, αν έχουμε ένα σύνολο $N$ μετρήσεων $\{u(t_i), y(t_i)\}_{i=1}^N$, η offline μέθοδος ελαχίστων τετραγώνων δίνει την εκτίμηση:
+\[ \hat{\theta} = \frac{\sum_{i=1}^N u(t_i) \ln\left(\frac{y(t_i)}{1 - y(t_i)}\right)}{\sum_{i=1}^N u(t_i)^2} \]
+\textbf{Προϋποθέσεις εφαρμογής:}
+1) Όλες οι μετρήσεις της εξόδου πρέπει να ικανοποιούν $0 < y(t_i) < 1$ (δηλαδή να μην βγαίνουν εκτός ορίων λόγω θορύβου μέτρησης).
+2) Η είσοδος πρέπει να είναι επιβάλλουσα, δηλαδή $\sum_{i=1}^N u(t_i)^2 > 0$ (τουλάχιστον μία μέτρηση της εισόδου να είναι μη μηδενική).
+
+\textbf{β) Προϋποθέσεις Σύγκλισης της Μεθόδου Κλίσης}
+
+Χρησιμοποιώντας τη γραμμική παραμετροποίηση $z(t) = \theta^* u(t)$, ορίζουμε το σφάλμα εκτίμησης $e_y(t) = z(t) - \hat{\theta}(t) u(t)$.
+Ο αναδρομικός νόμος προσαρμογής της μεθόδου κλίσης (unnormalized gradient method) ορίζεται ως:
+\[ \dot{\hat{\theta}}(t) = \Gamma e_y(t) u(t) = \Gamma \left( z(t) - \hat{\theta}(t) u(t) \right) u(t) \]
+όπου $\Gamma > 0$ είναι το κέρδος προσαρμογής.
+
+Ορίζουμε το σφάλμα παραμέτρου $e_\theta(t) = \hat{\theta}(t) - \theta^*$. Επειδή $\dot{\theta}^* = 0$ και $e_y(t) = -e_\theta(t) u(t)$, η δυναμική του σφάλματος παραμέτρου είναι:
+\[ \dot{e}_\theta(t) = -\Gamma u^2(t) e_\theta(t) \]
+Η αναλυτική λύση της γραμμικής διαφορικής εξίσωσης είναι:
+\[ e_\theta(t) = e_\theta(0) \exp\left( -\Gamma \int_0^t u^2(\tau) d\tau \right) \]
+Για να εξασφαλιστεί η σύγκλιση της εκτίμησης στην πραγματική τιμή, δηλαδή $\lim_{t \to \infty} \hat{\theta}(t) = \theta^* \implies \lim_{t \to \infty} e_\theta(t) = 0$, πρέπει ο εκθέτης να τείνει στο $-\infty$:
+\[ \int_0^\infty u^2(\tau) d\tau = \infty \]
+Με δεδομένη την είσοδο $u(t) = -\varphi(t)$, η συνθήκη αυτή γίνεται:
+\[ \int_0^\infty \varphi^2(\tau) d\tau = \infty \]
+Αυτή η συνθήκη ικανοποιείται αν το σήμα $\varphi(t)$ είναι Επιμένουσας Διέγερσης (PE), δηλαδή αν υπάρχουν σταθερές $\alpha_0, T_0 > 0$ τέτοιες ώστε:
+\[ \int_{t}^{t+T_0} \varphi^2(\tau) d\tau \ge \alpha_0 > 0, \quad \forall t \ge 0 \]
+(κάτι που αποκλείει το σήμα $\varphi(t)$ να συγκλίνει στο μηδέν).
+\end{answer}
+
+\begin{question}[ΘΕΜΑ 2 (Μονάδες: 3.5)]
+Δίνεται το σύστημα:
+\begin{align}
+    \dot{x}_1 &= \theta_1^* x_1^2 + x_2, \quad x_1(0) = 0 \\
+    \dot{x}_2 &= -a_1 x_1 - a_2 x_2^3 + \theta_2^* u, \quad x_2(0) = 0
+\end{align}
+όπου $x_1, x_2$ είναι οι μεταβλητές κατάστασης, $u$ η είσοδος, $a_1, a_2 > 0$ γνωστές σταθερές και $\theta_1^*, \theta_2^*$ σταθερές αλλά άγνωστες παράμετροι. Να σχεδιαστεί αλγόριθμος εκτίμησης πραγματικού χρόνου για τις παραμέτρους $\theta_1^*, \theta_2^*$ σύμφωνα με τη Μεικτή Τοπολογία κατά Lyapunov, έτσι ώστε οι εκτιμήσεις $\hat{\theta}_1, \hat{\theta}_2$ να ικανοποιούν τους περιορισμούς:
+\begin{align}
+    \hat{\theta}_1 &\le -1 \\
+    1 &\le \hat{\theta}_2 \le 2
+\end{align}
+χρησιμοποιώντας τη μέθοδο προβολής. Να αποδειχθεί η ευστάθεια του συστήματος εκτίμησης.
+\end{question}
+
+\begin{answer}
+\textbf{Βήμα 1: Σχεδιασμός Μοντέλου Εκτίμησης (Μεικτή Τοπολογία)}
+
+Επειδή οι καταστάσεις $x_1, x_2$ και η είσοδος $u$ είναι μετρήσιμες, σχεδιάζουμε το ακόλουθο μοντέλο εκτίμησης (παράλληλη/σειριακή-παράλληλη δομή):
+\begin{align}
+    \dot{\hat{x}}_1 &= \hat{\theta}_1 x_1^2 + x_2 + k_1 e_1 \\
+    \dot{\hat{x}}_2 &= -a_1 x_1 - a_2 x_2^3 + \hat{\theta}_2 u + k_2 e_2
+\end{align}
+όπου $e_1 = x_1 - \hat{x}_1$ και $e_2 = x_2 - \hat{x}_2$ είναι τα σφάλματα εκτίμησης κατάστασης, και $k_1, k_2 > 0$ είναι θετικά κέρδη σχεδιασμού.
+
+Αφαιρώντας τις εξισώσεις του μοντέλου από τις εξισώσεις του συστήματος, λαμβάνουμε τη δυναμική των σφαλμάτων κατάστασης:
+\begin{align}
+    \dot{e}_1 &= -\tilde{\theta}_1 x_1^2 - k_1 e_1 \\
+    \dot{e}_2 &= -\tilde{\theta}_2 u - k_2 e_2
+\end{align}
+όπου $\tilde{\theta}_1 = \hat{\theta}_1 - \theta_1^*$ και $\tilde{\theta}_2 = \hat{\theta}_2 - \theta_2^*$ είναι τα σφάλματα παραμέτρων.
+
+\textbf{Βήμα 2: Σχεδιασμός Νόμου Προσαρμογής με Προβολή}
+
+Επιλέγουμε τη Lyapunov-like συνάρτηση:
+\[ V(e_1, e_2, \tilde{\theta}_1, \tilde{\theta}_2) = \frac{1}{2} e_1^2 + \frac{1}{2} e_2^2 + \frac{1}{2\gamma_1} \tilde{\theta}_1^2 + \frac{1}{2\gamma_2} \tilde{\theta}_2^2 \]
+όπου $\gamma_1, \gamma_2 > 0$ είναι τα κέρδη προσαρμογής. Η χρονική παράγωγος της $V$ είναι:
+\[ \dot{V} = e_1 \dot{e}_1 + e_2 \dot{e}_2 + \frac{1}{\gamma_1} \tilde{\theta}_1 \dot{\hat{\theta}}_1 + \frac{1}{\gamma_2} \tilde{\theta}_2 \dot{\hat{\theta}}_2 \]
+\[ \dot{V} = -k_1 e_1^2 - k_2 e_2^2 + \tilde{\theta}_1 \left( \frac{1}{\gamma_1} \dot{\hat{\theta}}_1 - e_1 x_1^2 \right) + \tilde{\theta}_2 \left( \frac{1}{\gamma_2} \dot{\hat{\theta}}_2 - e_2 u \right) \]
+Για να εξασφαλίσουμε $\dot{V} \le 0$ ενώ παράλληλα ικανοποιούνται οι περιορισμοί, εφαρμόζουμε τη μέθοδο προβολής (Projection Algorithm).
+
+Ορίζουμε τους νόμους προσαρμογής:
+\[ \dot{\hat{\theta}}_1 = \text{Proj}_1\left(\hat{\theta}_1, \gamma_1 e_1 x_1^2\right) \]
+\[ \dot{\hat{\theta}}_2 = \text{Proj}_2\left(\hat{\theta}_2, \gamma_2 e_2 u\right) \]
+όπου οι τελεστές προβολής ορίζονται ως:
+\[ \text{Proj}_1\left(\hat{\theta}_1, Y_1\right) = \begin{cases} 
+0, & \text{αν } \hat{\theta}_1 = -1 \text{ και } Y_1 > 0 \\
+Y_1, & \text{διαφορετικά}
+\end{cases} \]
+\[ \text{Proj}_2\left(\hat{\theta}_2, Y_2\right) = \begin{cases} 
+0, & \text{αν } \hat{\theta}_2 = 2 \text{ και } Y_2 > 0 \\
+0, & \text{αν } \hat{\theta}_2 = 1 \text{ και } Y_2 < 0 \\
+Y_2, & \text{διαφορετικά}
+\end{cases} \]
+
+\textbf{Βήμα 3: Απόδειξη Ευστάθειας}
+
+Για να αποδείξουμε την ευστάθεια, πρέπει να δείξουμε ότι η ιδιότητα $\tilde{\theta}_i (\text{Proj}_i(., Y_i) - Y_i) \le 0$ ισχύει πάντα.
+
+\begin{itemize}
+    \item \textbf{Για την $\theta_1^*$:} 
+    Αν $\text{Proj}_1 = Y_1$, τότε $\tilde{\theta}_1 (\text{Proj}_1 - Y_1) = 0$.
+    Αν $\text{Proj}_1 = 0$ (συμβαίνει όταν $\hat{\theta}_1 = -1$ και $Y_1 > 0$), τότε επειδή η πραγματική παράμετρος ικανοποιεί $\theta_1^* \le -1$, έχουμε $\tilde{\theta}_1 = \hat{\theta}_1 - \theta_1^* = -1 - \theta_1^* \ge 0$.
+    Συνεπώς, $\tilde{\theta}_1 (0 - Y_1) = -\tilde{\theta}_1 Y_1 \le 0$ (αφού $\tilde{\theta}_1 \ge 0, Y_1 > 0$).
+    Άρα, σε κάθε περίπτωση: $\tilde{\theta}_1 (\text{Proj}_1 - Y_1) \le 0$.
+
+    \item \textbf{Για την $\theta_2^*$:}
+    Αν $\text{Proj}_2 = Y_2$, τότε $\tilde{\theta}_2 (\text{Proj}_2 - Y_2) = 0$.
+    Αν $\text{Proj}_2 = 0$ λόγω $\hat{\theta}_2 = 2$ και $Y_2 > 0$: Επειδή $\theta_2^* \le 2$, έχουμε $\tilde{\theta}_2 = 2 - \theta_2^* \ge 0$. Άρα $\tilde{\theta}_2 (0 - Y_2) = -\tilde{\theta}_2 Y_2 \le 0$.
+    Αν $\text{Proj}_2 = 0$ λόγω $\hat{\theta}_2 = 1$ και $Y_2 < 0$: Επειδή $\theta_2^* \ge 1$, έχουμε $\tilde{\theta}_2 = 1 - \theta_2^* \le 0$. Άρα $\tilde{\theta}_2 (0 - Y_2) = -\tilde{\theta}_2 Y_2 \le 0$ (αφού $\tilde{\theta}_2 \le 0$ και $-Y_2 > 0$).
+    Άρα, σε κάθε περίπτωση: $\tilde{\theta}_2 (\text{Proj}_2 - Y_2) \le 0$.
+\end{itemize}
+
+Αντικαθιστώντας τους νόμους προσαρμογής στην παράγωγο της Lyapunov $\dot{V}$:
+\begin{align*}
+    \dot{V} &= -k_1 e_1^2 - k_2 e_2^2 + \frac{1}{\gamma_1} \tilde{\theta}_1 \left( \text{Proj}_1(.) - \gamma_1 e_1 x_1^2 \right) + \frac{1}{\gamma_2} \tilde{\theta}_2 \left( \text{Proj}_2(.) - \gamma_2 e_2 u \right) \\
+    &\le -k_1 e_1^2 - k_2 e_2^2 \le 0
+\end{align*}
+Εφόσον $V \ge 0$ and $\dot{V} \le 0$, προκύπτει ότι:
+1) Τα σφάλματα $e_1, e_2$ και οι αποκλίσεις των παραμέτρων $\tilde{\theta}_1, \tilde{\theta}_2$ είναι φραγμένα σήματα ($\in \mathcal{L}_\infty$).
+2) Τα σφάλματα κατάστασης είναι τετραγωνικά ολοκληρώσιμα ($e_1, e_2 \in \mathcal{L}_2$).
+3) Από τις εξισώσεις σφάλματος, εφόσον όλα τα σήματα είναι φραγμένα, προκύπτει ότι $\dot{e}_1, \dot{e}_2 \in \mathcal{L}_\infty$.
+4) Σύμφωνα με το Λήμμα του Barbalat, $\lim_{t \to \infty} e_1(t) = 0$ και $\lim_{t \to \infty} e_2(t) = 0$, γεγονός που αποδεικνύει την ευστάθεια και τη σύγκλιση του συστήματος εκτίμησης.
+\end{answer}
+
+\begin{question}[ΘΕΜΑ 3 (Μονάδες: 3.5)]
+Δίνεται το σύστημα:
+\begin{equation}
+    y = \frac{k}{s+a} u
+\end{equation}
+όπου $y$ είναι η έξοδος, $u$ η είσοδος και $k, a$ άγνωστες σταθερές παράμετροι. Υποθέτουμε πως μόνο η έξοδος $y$ είναι μετρήσιμη. Η έξοδος του συστήματος μετριέται έπειτα από κβάντιση με ομοιόμορφο κβαντιστή που ικανοποιεί:
+\begin{equation}
+    q(y) = y + d(y), \quad |d(y)| \le \Delta
+\end{equation}
+με $\Delta$ άγνωστο άνω όριο. Να σχεδιαστεί αλγόριθμος πραγματικού χρόνου για την εκτίμηση των άγνωστων παραμέτρων $k, a$ χρησιμοποιώντας τη μέθοδο της $\sigma$-τροποποίησης και να γίνει ανάλυση ευστάθειας του συστήματος εκτίμησης.
+\end{question}
+
+\begin{answer}
+\textbf{Βήμα 1: Γραμμική Παραμετροποίηση του Συστήματος}
+
+Η διαφορική εξίσωση του συστήματος είναι:
+\[ (s+a) y = k u \implies \dot{y} = -a y + k u \]
+Επειδή η παράγωγος $\dot{y}$ δεν είναι μετρήσιμη, φιλτράρουμε το σύστημα με ένα σταθερό φίλτρο 1ης τάξης $\frac{1}{s+\lambda}$, όπου $\lambda > 0$:
+\[ \frac{s}{s+\lambda} y = -a \frac{1}{s+\lambda} y + k \frac{1}{s+\lambda} u \implies y = (\lambda - a) \frac{1}{s+\lambda} y + k \frac{1}{s+\lambda} u \]
+Ορίζουμε τα φιλτραρισμένα σήματα:
+\[ \phi_1 = \frac{1}{s+\lambda} y, \quad \phi_2 = \frac{1}{s+\lambda} u \]
+Έτσι, προκύπτει η γραμμική παραμετροποίηση:
+\[ y(t) = \theta^{*T} \phi(t) \]
+όπου $\theta^* = [\lambda - a, \;\; k]^T$ και $\phi(t) = [\phi_1(t), \;\; \phi_2(t)]^T$.
+
+Ωστόσο, λόγω κβάντισης, μετράμε το σήμα $y_q(t) = y(t) + d(t)$ με $|d(t)| \le \Delta$.
+Κατασκευάζουμε τα φιλτραρισμένα σήματα χρησιμοποιώντας το μετρήσιμο $y_q(t)$:
+\[ \phi_{1q} = \frac{1}{s+\lambda} y_q = \phi_1 + \phi_d, \quad \text{όπου } \phi_d = \frac{1}{s+\lambda} d \]
+Επειδή το $d(t)$ είναι φραγμένο από $\Delta$ και το φίλτρο είναι ευσταθές, έχουμε $|\phi_d(t)| \le \frac{\Delta}{\lambda}$.
+Ορίζουμε το μετρήσιμο regressor διάνυσμα $\phi_q(t) = [\phi_{1q}(t), \;\; \phi_2(t)]^T = \phi(t) + [\phi_d(t), \;\; 0]^T$.
+Η σχέση των μετρήσιμων σημάτων γίνεται:
+\[ y_q(t) = y(t) + d(t) = \theta^{*T} \left( \phi_q(t) - \begin{bmatrix} \phi_d(t) \\ 0 \end{bmatrix} \right) + d(t) = \theta^{*T} \phi_q(t) + \eta(t) \]
+όπου $\eta(t) = d(t) - \theta_1^* \phi_d(t)$ είναι η συνολική διαταραχή λόγω κβάντισης. Η $\eta(t)$ είναι φραγμένη:
+\[ |\eta(t)| \le \Delta + |\theta_1^*| \frac{\Delta}{\lambda} = \Delta \left( 1 + \frac{|\lambda - a|}{\lambda} \right) \equiv \eta_0 \]
+Έχουμε λοιπόν τη γραμμική παραμετροποίηση με φραγμένη διαταραχή:
+\[ y_q(t) = \theta^{*T} \phi_q(t) + \eta(t) \]
+
+\textbf{Βήμα 2: Σχεδιασμός Αλγορίθμου Εκτίμησης ($\sigma$-modification)}
+
+Ορίζουμε το σφάλμα εκτίμησης:
+\[ e_y(t) = y_q(t) - \hat{\theta}^T(t) \phi_q(t) \]
+Για να αποτρέψουμε το φαινόμενο της παραμετρικής ολίσθησης (parameter drift) λόγω της συνεχούς διαταραχής $\eta(t)$, χρησιμοποιούμε τη μέθοδο της **$\sigma$-τροποποίησης** (sigma modification):
+\[ \dot{\hat{\theta}}(t) = \Gamma e_y(t) \phi_q(t) - \Gamma \sigma \hat{\theta}(t) \]
+όπου $\Gamma = \Gamma^T > 0$ είναι ο πίνακας κερδών προσαρμογής και $\sigma > 0$ είναι μια μικρή σχεδιαστική σταθερά.
+
+\textbf{Βήμα 3: Ανάλυση Ευστάθειας}
+
+Ορίζουμε το σφάλμα παραμέτρων $e_\theta(t) = \hat{\theta}(t) - \theta^*$. Η δυναμική του σφάλματος παραμέτρων είναι:
+\[ \dot{e}_\theta(t) = \Gamma \left( \eta(t) - e_\theta^T(t) \phi_q(t) \right) \phi_q(t) - \Gamma \sigma \left( e_\theta(t) + \theta^* \right) \]
+Επιλέγουμε τη Lyapunov συνάρτηση:
+\[ V(e_\theta) = \frac{1}{2} e_\theta^T \Gamma^{-1} e_\theta \]
+Η χρονική παράγωγος της $V$ είναι:
+\[ \dot{V} = -(e_\theta^T \phi_q)^2 + \eta e_\theta^T \phi_q - \sigma \|e_\theta\|^2 - \sigma e_\theta^T \theta^* \]
+Χρησιμοποιώντας την ανισότητα $a b \le \frac{1}{2} a^2 + \frac{1}{2} b^2$, έχουμε:
+\[ \eta (e_\theta^T \phi_q) \le \frac{1}{2} (e_\theta^T \phi_q)^2 + \frac{1}{2} \eta^2 \le \frac{1}{2} (e_\theta^T \phi_q)^2 + \frac{1}{2} \eta_0^2 \]
+Επίσης, για τον τελευταίο όρο:
+\[ -\sigma e_\theta^T \theta^* \le \frac{\sigma}{2} \|e_\theta\|^2 + \frac{\sigma}{2} \|\theta^*\|^2 \]
+Συνδυάζοντας τις παραπάνω ανισότητες, λαμβάνουμε:
+\begin{align*}
+    \dot{V} &\le -\frac{1}{2} (e_\theta^T \phi_q)^2 - \sigma \|e_\theta\|^2 + \frac{1}{2} \eta_0^2 + \frac{\sigma}{2} \|e_\theta\|^2 + \frac{\sigma}{2} \|\theta^*\|^2 \\
+    &\le -\frac{\sigma}{2} \|e_\theta\|^2 + \left( \frac{1}{2} \eta_0^2 + \frac{\sigma}{2} \|\theta^*\|^2 \right)
+\end{align*}
+Εφόσον $V = \frac{1}{2} e_\theta^T \Gamma^{-1} e_\theta \le \frac{1}{2 \lambda_{min}(\Gamma)} \|e_\theta\|^2 \implies -\|e_\theta\|^2 \le -2 \lambda_{min}(\Gamma) V$, προκύπτει η διαφορική ανισότητα:
+\[ \dot{V} \le -a_0 V + b_0 \]
+όπου $a_0 = \sigma \lambda_{min}(\Gamma) > 0$ και $b_0 = \frac{1}{2} \eta_0^2 + \frac{\sigma}{2} \|\theta^*\|^2 > 0$.
+Ολοκληρώνοντας τη διαφορική ανισότητα:
+\[ V(t) \le V(0) e^{-a_0 t} + \frac{b_0}{a_0} \left( 1 - e^{-a_0 t} \right) \]
+Αυτό αποδεικνύει ότι:
+1) Το σφάλμα εκτίμησης των παραμέτρων $e_\theta(t)$ είναι ομοιόμορφα φραγμένο ($e_\theta \in \mathcal{L}_\infty$).
+2) Το σφάλμα συγκλίνει ασυμπτωτικά σε ένα συμπαγές σύνολο (compact set) γύρω από το μηδέν με ακτίνα που εξαρτάται από το μέγεθος της διαταραχής κβάντισης $\eta_0$ και την τιμή της παραμέτρου $\sigma$:
+\[ \lim_{t \to \infty} \|e_\theta(t)\| \le \sqrt{\|\theta^*\|^2 + \frac{\eta_0^2}{\sigma}} \]
+Συνεπώς, ο αλγόριθμος $\sigma$-modification αποτρέπει αποτελεσματικά την παραμετρική ολίσθηση.
+\end{answer}
+
+\newpage
+
+%======================================================================
+%	EXAM SECTION 5: SEPTEMBER 2024
+%======================================================================
+\phantomsection
+\hypertarget{exam5}{}
+\pdfbookmark[1]{Σεπτέμβριος 2024}{exam5}
+\examyear{Σεπτέμβριος 2024}
+
+\begin{center}
+\textbf{\Large Σεπτέμβριος 2024 -- Θέματα \& Λύσεις}
+\end{center}
+
+\begin{question}[ΘΕΜΑ 1 (Μονάδες: 3)]
+Έστω το σύστημα
+\begin{equation}
+    y = \frac{a_1}{a_2 + e^{\theta_1^* u_1 - \theta_2^* u_2}}
+\end{equation}
+όπου $y \in \mathbb{R}$ η έξοδος, $u_i \in \mathbb{R}, i = 1, 2$, οι είσοδοι του συστήματος, $a_i > 0, i = 1, 2$, γνωστές σταθερές και $\theta_i^* \in \mathbb{R}, i = 1, 2$, σταθερές αλλά άγνωστες παράμετροι.
+\begin{enumerate}
+    \item[α)] Να διερευνηθεί αν μπορεί να εφαρμοστεί η μέθοδος ελαχίστων τετραγώνων για την εκτίμηση των παραμέτρων $\theta_i^*, i = 1, 2$. Να αιτιολογήσετε την απάντησή σας (1.5 μονάδες).
+    \item[β)] Να διερευνηθεί υπό ποιες προϋποθέσεις η μέθοδος κλίσης με είσοδους $u_i(t) = c_i, i = 1, 2$, για κάθε $t \ge 0$, όπου $c_i$ σταθερές, εγγυάται ότι $\dots \lim_{t \to \infty} \hat{\theta}_i(t) = \theta_i^*, i = 1, 2$. Να αιτιολογήσετε την απάντησή σας (1.5 μονάδες).
+\end{enumerate}
+\end{question}
+
+\begin{answer}
+\textbf{α) Διερεύνηση Εφαρμογής της Μεθόδου Ελαχίστων Τετραγώνων}
+
+Η εξίσωση του συστήματος είναι μη γραμμική ως προς τις παραμέτρους $\theta_1^*, \theta_2^*$. Επιχειρούμε να τη μετασχηματίσουμε σε γραμμικά παραμετροποιημένη μορφή $z = \theta^{*T} \phi$:
+\[ y = \frac{a_1}{a_2 + e^{\theta_1^* u_1 - \theta_2^* u_2}} \implies a_2 + e^{\theta_1^* u_1 - \theta_2^* u_2} = \frac{a_1}{y} \implies e^{\theta_1^* u_1 - \theta_2^* u_2} = \frac{a_1 - a_2 y}{y} \]
+Εφόσον οι παράμετροι και οι είσοδοι είναι πραγματικοί αριθμοί, ο εκθετικός όρος είναι πάντα αυστηρά θετικός. Αυτό επιβάλλει τον περιορισμό:
+\[ \frac{a_1 - a_2 y}{y} > 0 \implies 0 < y < \frac{a_1}{a_2} \]
+Λόγω της δομής του συστήματος, επειδή $a_i > 0$ και $e^{\theta_1^* u_1 - \theta_2^* u_2} > 0$, η έξοδος $y$ ικανοποιεί πάντα αυτόν τον περιορισμό. Συνεπώς, εφαρμόζοντας τον φυσικό λογάριθμο (ln) λαμβάνουμε:
+\[ \ln\left( e^{\theta_1^* u_1 - \theta_2^* u_2} \right) = \ln\left( \frac{a_1 - a_2 y}{y} \right) \implies \theta_1^* u_1 - \theta_2^* u_2 = \ln\left( \frac{a_1 - a_2 y}{y} \right) \]
+Ορίζουμε:
+\[ z = \ln\left( \frac{a_1 - a_2 y}{y} \right), \quad \phi = \begin{bmatrix} u_1 \\ -u_2 \end{bmatrix}, \quad \theta^* = \begin{bmatrix} \theta_1^* \\ \theta_2^* \end{bmatrix} \]
+Έτσι προκύπτει η γραμμική παραμετροποίηση:
+\[ z = \theta^{*T} \phi \]
+Συνεπώς, η μέθοδος ελαχίστων τετραγώνων **μπορεί να εφαρμοστεί** offline με τη χρήση $N$ μετρήσεων $\{u_1(t_i), u_2(t_i), y(t_i)\}_{i=1}^N$, δίνοντας την εκτίμηση:
+\[ \hat{\theta} = \left( \sum_{i=1}^N \phi(t_i) \phi^T(t_i) \right)^{-1} \sum_{i=1}^N \phi(t_i) z(t_i) \]
+\textbf{Προϋποθέσεις εφαρμογής:}
+1) Οι μετρήσεις της εξόδου πρέπει να ικανοποιούν $0 < y(t_i) < \frac{a_1}{a_2}$.
+2) Ο πίνακας $\sum_{i=1}^N \phi(t_i) \phi^T(t_i)$ πρέπει να είναι αντιστρέψιμος (δηλαδή οι είσοδοι $u_1, u_2$ να μην είναι γραμμικά εξαρτημένες και να υπάρχει επαρκής διέγερση).
+
+\textbf{β) Διερεύνηση Σύγκλισης με Σταθερές Εισόδους}
+
+Όταν οι είσοδοι είναι σταθερές $u_1(t) = c_1, u_2(t) = c_2$, το διάνυσμα παλινδρόμησης $\phi(t)$ είναι σταθερό:
+\[ \phi(t) = \phi_0 = \begin{bmatrix} c_1 \\ -c_2 \end{bmatrix} \]
+Χρησιμοποιώντας την unnormalized μέθοδο κλίσης (όπως ορίζεται στα Notes.tex με κόστος $K(\hat{\theta}) = \frac{1}{2} e_y^2$), ο νόμος προσαρμογής είναι $\dot{\hat{\theta}}(t) = \Gamma e_y(t) \phi_0$. Η δυναμική του σφάλματος παραμέτρων $e_\theta(t) = \hat{\theta}(t) - \theta^*$ γίνεται:
+\[ \dot{e}_\theta(t) = -\Gamma \phi_0 \phi_0^T e_\theta(t) \]
+Ο πίνακας $A = -\Gamma \phi_0 \phi_0^T$ είναι ένας πίνακας βαθμίδας (rank) το πολύ 1. Επειδή ο χώρος των παραμέτρων είναι δισδιάστατος ($\theta^* \in \mathbb{R}^2$), ο πίνακας $A$ έχει τουλάχιστον μία μηδενική ιδιοτιμή και το αντίστοιχο ιδιοδιάνυσμα $v$ (που είναι ορθογώνιο στο $\phi_0$, δηλαδή $v^T \phi_0 = 0$) ανήκει στον πυρήνα του πίνακα $A$:
+\[ A v = 0 \]
+Αυτό σημαίνει ότι οποιοδήποτε σφάλμα παραμέτρων κατά τη διεύθυνση του $v$ θα παραμείνει αμετάβλητο ($\dot{e}_\theta = 0$), και η εκτίμηση δεν θα συγκλίνει στις πραγματικές τιμές.
+
+Για να συγκλίνουν οι εκτιμήσεις $\hat{\theta}_i(t)$ στις πραγματικές παραμέτρους $\theta_i^*$, το διάνυσμα $\phi(t)$ πρέπει να είναι Επιμένουσας Διέγερσης (PE) τάξης 2, δηλαδή να αλλάζει κατεύθυνση στο χρόνο ώστε να σαρώνει όλο τον δισδιάστατο χώρο. Ένα σταθερό διάνυσμα $\phi_0$ δεν είναι PE τάξης 2. Συνεπώς, σταθερές είσοδοι **δεν εγγυώνται** τη σύγκλιση $\lim_{t \to \infty} \hat{\theta}_i(t) = \theta_i^*$.
+\end{answer}
+
+\begin{question}[ΘΕΜΑ 2 (Μονάδες: 4)]
+Δίνεται το σύστημα
+\begin{align}
+    \dot{x}_1 &= a_1^* x_1 + a_2^* u, \quad x_1(0) = 0 \\
+    \dot{x}_2 &= a_2^* x_1 - a_1^* x_2, \quad x_2(0) = 0 \\
+    \dot{x}_3 &= a_1^* x_3 - a_3^* x_3 - a_2^* u, \quad x_3(0) = 0
+\end{align}
+όπου οι καταστάσεις του συστήματος $x_i \in \mathcal{L}_\infty, i = 1, 2, 3$, και η είσοδος $u \in \mathcal{L}_\infty$ είναι μετρήσιμα σήματα, και $a_i^*, i = 1, 2, 3$, είναι άγνωστες παράμετροι. Να σχεδιαστεί αλγόριθμος πραγματικού-χρόνου για την εκτίμηση των άγνωστων παραμέτρων $a_i^*, i = 1, 2, 3$, που να εγγυάται την ευστάθεια του συστήματος εκτίμησης για κάθε $t \ge 0$. Να αποδειχθεί η ευστάθεια του αλγορίθμου που σχεδιάσατε. Να αιτιολογήσετε την επιλογή της μεθοδολογίας που χρησιμοποιήσατε.
+\end{question}
+
+\begin{answer}
+\textbf{Βήμα 1: Επιλογή Μεθοδολογίας}
+
+Επειδή όλες οι μεταβλητές κατάστασης $x_i(t)$ και η είσοδος $u(t)$ είναι άμεσα μετρήσιμες και φραγμένες ($\in \mathcal{L}_\infty$), επιλέγουμε τη **σχεδίαση βασισμένη σε Lyapunov με Μεικτή (Σειριακή-Παράλληλη) Τοπολογία**. Η μέθοδος αυτή αποφεύγει τη χρήση παραγώγων των σημάτων (που εισάγουν θόρυβο) και εξασφαλίζει την ευστάθεια του κλειστού συστήματος εκτίμησης.
+
+\textbf{Βήμα 2: Σχεδιασμός Μοντέλου Εκτίμησης και Δυναμικής Σφάλματος}
+
+Σχεδιάζουμε το μοντέλο εκτίμησης ως εξής:
+\begin{align*}
+    \dot{\hat{x}}_1 &= \hat{a}_1 x_1 + \hat{a}_2 u + k_1 e_1 \\
+    \dot{\hat{x}}_2 &= \hat{a}_2 x_1 - \hat{a}_1 x_2 + k_2 e_2 \\
+    \dot{\hat{x}}_3 &= \hat{a}_1 x_3 - \hat{a}_3 x_3 - \hat{a}_2 u + k_3 e_3
+\end{align*}
+όπου $e_i = x_i - \hat{x}_i$ είναι τα σφάλματα εκτίμησης των καταστάσεων και $k_i > 0$ σχεδιαστικές σταθερές.
+Αφαιρώντας τις παραπάνω εξισώσεις από τις εξισώσεις του συστήματος, λαμβάνουμε τη δυναμική των σφαλμάτων κατάστασης:
+\begin{align*}
+    \dot{e}_1 &= -\tilde{a}_1 x_1 - \tilde{a}_2 u - k_1 e_1 \\
+    \dot{e}_2 &= -\tilde{a}_2 x_1 + \tilde{a}_1 x_2 - k_2 e_2 \\
+    \dot{e}_3 &= -\tilde{a}_1 x_3 + \tilde{a}_3 x_3 + \tilde{a}_2 u - k_3 e_3
+\end{align*}
+όπου $\tilde{a}_i = \hat{a}_i - a_i^*$ είναι τα σφάλματα εκτίμησης των παραμέτρων.
+
+\textbf{Βήμα 3: Επιλογή Lyapunov και Σχεδιασμός Νόμων Προσαρμογής}
+
+Επιλέγουμε τη Lyapunov συνάρτηση:
+\[ V(e, \tilde{a}) = \frac{1}{2} e_1^2 + \frac{1}{2} e_2^2 + \frac{1}{2} e_3^2 + \frac{1}{2\gamma_1} \tilde{a}_1^2 + \frac{1}{2\gamma_2} \tilde{a}_2^2 + \frac{1}{2\gamma_3} \tilde{a}_3^2 \]
+όπου $\gamma_i > 0$ είναι τα κέρδη προσαρμογής. Η παράγωγος της $V$ ως προς το χρόνο είναι:
+\[ \dot{V} = e_1 \dot{e}_1 + e_2 \dot{e}_2 + e_3 \dot{e}_3 + \frac{1}{\gamma_1} \tilde{a}_1 \dot{\hat{a}}_1 + \frac{1}{\gamma_2} \tilde{a}_2 \dot{\hat{a}}_2 + \frac{1}{\gamma_3} \tilde{a}_3 \dot{\hat{a}}_3 \]
+Αντικαθιστώντας τις παραγώγους των σφαλμάτων:
+\begin{align*}
+    \dot{V} = &-k_1 e_1^2 - k_2 e_2^2 - k_3 e_3^2 \\
+    &+ \tilde{a}_1 \left( \frac{1}{\gamma_1} \dot{\hat{a}}_1 - e_1 x_1 + e_2 x_2 - e_3 x_3 \right) \\
+    &+ \tilde{a}_2 \left( \frac{1}{\gamma_2} \dot{\hat{a}}_2 - e_1 u - e_2 x_1 + e_3 u \right) \\
+    &+ \tilde{a}_3 \left( \frac{1}{\gamma_3} \dot{\hat{a}}_3 + e_3 x_3 \right)
+\end{align*}
+Για να απαλείψουμε τους όρους των σφαλμάτων παραμέτρων, επιλέγουμε τους νόμους προσαρμογής πραγματικού χρόνου:
+\begin{align*}
+    \dot{\hat{a}}_1 &= \gamma_1 (e_1 x_1 - e_2 x_2 + e_3 x_3) \\
+    \dot{\hat{a}}_2 &= \gamma_2 (e_1 u + e_2 x_1 - e_3 u) \\
+    \dot{\hat{a}}_3 &= -\gamma_3 e_3 x_3
+\end{align*}
+
+\textbf{Βήμα 4: Απόδειξη Ευστάθειας}
+
+Με τους παραπάνω νόμους προσαρμογής, η παράγωγος της Lyapunov γίνεται:
+\[ \dot{V} = -k_1 e_1^2 - k_2 e_2^2 - k_3 e_3^2 \le 0 \]
+Εφόσον $V \ge 0$ και $\dot{V} \le 0$, προκύπτει ότι:
+1) Η $V(t)$ είναι φραγμένη, άρα τα σφάλματα κατάστασης $e_i(t)$ και παραμέτρων $\tilde{a}_i(t)$ είναι φραγμένα σήματα ($\in \mathcal{L}_\infty$).
+2) Ολοκληρώνοντας τη $\dot{V}$: $\sum_{i=1}^3 k_i \int_0^\infty e_i^2(t) dt \le V(0) < \infty \implies e_i \in \mathcal{L}_2$.
+3) Από τις εξισώσεις σφάλματος, επειδή $x_i, u, e_i, \tilde{a}_i \in \mathcal{L}_\infty$, προκύπτει ότι οι παράγωγοι $\dot{e}_i \in \mathcal{L}_\infty$.
+4) Σύμφωνα με το Λήμμα του Barbalat, εφόσον $e_i \in \mathcal{L}_2 \cap \mathcal{L}_\infty$ and $\dot{e}_i \in \mathcal{L}_\infty$, έχουμε $\lim_{t \to \infty} e_i(t) = 0$ για $i = 1, 2, 3$.
+Αυτό αποδεικνύει την ευστάθεια του συστήματος εκτίμησης και την ασυμπτωτική σύγκλιση των σφαλμάτων κατάστασης στο μηδέν.
+\end{answer}
+
+\begin{question}[ΘΕΜΑ 3 (Μονάδες: 3)]
+Θεωρήστε το σύστημα
+\begin{equation}
+    y = \frac{\theta_1^*}{s + \theta_2^*} u
+\end{equation}
+όπου $y \in \mathbb{R}$ είναι η έξοδος του συστήματος, $u \in \mathbb{R}$ η είσοδος και $\theta_i^* > 0, i = 1, 2$, σταθερές αλλά άγνωστες παράμετροι. Για την $\theta_1^*$ γνωρίζουμε ότι $1 \le \theta_1^* \le 2$. Η είσοδος του συστήματος είναι μετρήσιμο σήμα ενώ η έξοδος δειγματοληπτείται ανά διακριτές χρονικές στιγμές $t_k, k \in \mathbb{N} = \{0, 1, 2, ...\}$ από μηχανισμό ανίχνευσης γεγονότος σύμφωνα με τον οποίο $t_{k+1} = \inf\{t > t_k : |y(t) - y(t_k)| \ge \epsilon\}$, όπου $\epsilon > 0$ άγνωστη σταθερά. Να σχεδιαστεί αλγόριθμος πραγματικού-χρόνου που να εγγυάται την ευστάθεια του συστήματος εκτίμησης καθώς και ότι $1 \le \hat{\theta}_1(t) \le 2$, για κάθε $t \ge 0$. Να αιτιολογήσετε την επιλογή της μεθοδολογίας που χρησιμοποιήσατε.
+\end{question}
+
+\begin{answer}
+\textbf{Βήμα 1: Μοντελοποίηση με βάση την Event-Triggered Δειγματοληψία}
+
+Για κάθε χρονική στιγμή $t \in [t_k, t_{k+1})$, η έξοδος $y(t)$ δεν είναι άμεσα μετρήσιμη. Ωστόσο, γνωρίζουμε την τελευταία τιμή δειγματοληψίας $y(t_k)$ και από τη συνθήκη ενεργοποίησης γεγονότος (event-triggering condition) ισχύει:
+\[ |y(t) - y(t_k)| < \epsilon \]
+Ορίζουμε ως μετρήσιμο σήμα το $y_m(t) \equiv y(t_k)$. Τότε το πραγματικό $y(t)$ γράφεται ως:
+\[ y(t) = y_m(t) + d(t), \quad \text{με } |d(t)| < \epsilon \]
+όπου το $d(t) = y(t) - y(t_k)$ συμπεριφέρεται ως φραγμένος θόρυβος μέτρησης με άγνωστο άνω όριο $\epsilon$.
+
+\textbf{Βήμα 2: Γραμμική Παραμετροποίηση}
+
+Η διαφορική εξίσωση του συστήματος είναι:
+\[ \dot{y} = -\theta_2^* y + \theta_1^* u \]
+Φιλτράρουμε με φίλτρο $\frac{1}{s+\lambda}$, $\lambda > 0$:
+\[ \frac{s}{s+\lambda} y = -\theta_2^* \frac{1}{s+\lambda} y + \theta_1^* \frac{1}{s+\lambda} u \implies y = (\lambda - \theta_2^*) \frac{1}{s+\lambda} y + \theta_1^* \frac{1}{s+\lambda} u \]
+Ορίζουμε τα φιλτραρισμένα σήματα:
+\[ \phi_1(t) = \frac{1}{s+\lambda} u(t), \quad \phi_2(t) = \frac{1}{s+\lambda} y(t) \]
+Λόγω της δειγματοληψίας, υπολογίζουμε το φιλτραρισμένο σήμα της εξόδου χρησιμοποιώντας το μετρήσιμο $y_m(t)$:
+\[ \phi_{2m}(t) = \frac{1}{s+\lambda} y_m(t) = \phi_2(t) - \phi_d(t), \quad \phi_d(t) = \frac{1}{s+\lambda} d(t) \]
+Επειδή $|d(t)| < \epsilon$, ισχύει $|\phi_d(t)| \le \frac{\epsilon}{\lambda}$.
+Ορίζουμε το μετρήσιμο διάνυσμα παλινδρόμησης $\phi_m(t) = [\phi_1(t), \;\; \phi_{2m}(t)]^T$.
+Η σχέση των μετρήσιμων σημάτων γίνεται:
+\[ y_m(t) = y(t) - d(t) = \theta_1^* \phi_1(t) + (\lambda - \theta_2^*) (\phi_{2m}(t) + \phi_d(t)) - d(t) = \theta^{*T} \phi_m(t) + \eta(t) \]
+όπου $\theta^* = [\theta_1^*, \;\; \lambda - \theta_2^*]^T$ και $\eta(t) = (\lambda - \theta_2^*) \phi_d(t) - d(t)$ είναι η συνολική διαταραχή λόγω δειγματοληψίας, η οποία είναι φραγμένη:
+\[ |\eta(t)| \le \eta_0 \equiv \epsilon \left( 1 + \frac{|\lambda - \theta_2^*|}{\lambda} \right) \]
+Έχουμε λοιπόν τη γραμμικά παραμετροποιημένη μορφή με φραγμένη διαταραχή:
+\[ y_m(t) = \theta^{*T} \phi_m(t) + \eta(t) \]
+
+\textbf{Βήμα 3: Σχεδιασμός Ρομποτικού Αλγορίθμου Εκτίμησης}
+
+\textbf{Αιτιολόγηση Μεθοδολογίας:}
+1) Εφόσον η διαταραχή $\eta(t)$ έχει άγνωστο άνω όριο $\eta_0$, ο κλασικός αλγόριθμος εκτίμησης κινδυνεύει από παραμετρική ολίσθηση (parameter drift). Για την αντιμετώπισή της χρησιμοποιούμε τη μέθοδο της **$\sigma$-τροποποίησης ($\sigma$-modification)** που δεν απαιτεί γνώση του ορίου της διαταραχής.
+2) Για να εξασφαλίσουμε τον περιορισμό $1 \le \hat{\theta}_1(t) \le 2$, ενσωματώνουμε τη **μέθοδο προβολής (Projection)** στον πρώτο νόμο προσαρμογής.
+
+Ορίζουμε το σφάλμα εκτίμησης:
+\[ e_y(t) = y_m(t) - \hat{\theta}^T(t) \phi_m(t) \]
+Σχεδιάζουμε τους νόμους προσαρμογής:
+\begin{align*}
+    \dot{\hat{\theta}}_1(t) &= \text{Proj}_1\left(\hat{\theta}_1, \;\; \gamma_1 e_y \phi_1 - \sigma \hat{\theta}_1\right) \\
+    \dot{\hat{\theta}}_2(t) &= \gamma_2 e_y \phi_{2m} - \sigma \hat{\theta}_2
+\end{align*}
+όπου $\gamma_1, \gamma_2 > 0$ είναι τα κέρδη προσαρμογής, $\sigma > 0$ η σταθερά της $\sigma$-τροποποίησης, και ο τελεστής προβολής ορίζεται ως:
+\[ \text{Proj}_1\left(\hat{\theta}_1, F_1\right) = \begin{cases}
+    0, & \text{αν } \hat{\theta}_1 = 2 \text{ και } F_1 > 0 \\
+    0, & \text{αν } \hat{\theta}_1 = 1 \text{ και } F_1 < 0 \\
+    F_1, & \text{διαφορετικά}
+\end{cases} \]
+Αυτό ο νόμος εγγυάται ότι αν η αρχική εκτίμηση ικανοποιεί $1 \le \hat{\theta}_1(0) \le 2$, τότε $1 \le \hat{\theta}_1(t) \le 2$ για κάθε $t \ge 0$.
+
+\textbf{Βήμα 4: Απόδειξη Ευστάθειας}
+
+Ορίζουμε το σφάλμα εκτίμησης των παραμέτρων $e_\theta(t) = \hat{\theta}(t) - \theta^*$ (δηλ. $e_{\theta i} = \hat{\theta}_i - \theta_i^*$).
+Ορίζουμε τη Lyapunov συνάρτηση:
+\[ V(e_\theta) = \frac{1}{2\gamma_1} e_{\theta 1}^2 + \frac{1}{2\gamma_2} e_{\theta 2}^2 \]
+Η χρονική παράγωγός της είναι:
+\[ \dot{V} = \frac{1}{\gamma_1} e_{\theta 1} \dot{\hat{\theta}}_1 + \frac{1}{\gamma_2} e_{\theta 2} \dot{\hat{\theta}}_2 \]
+\[ \dot{V} = \frac{1}{\gamma_1} e_{\theta 1} \text{Proj}_1\left(\hat{\theta}_1, F_1\right) + e_{\theta 2} e_y \phi_{2m} - \frac{\sigma}{\gamma_2} e_{\theta 2} \hat{\theta}_2 \]
+Χρησιμοποιώντας την ιδιότητα του τελεστή προβολής (επειδή η πραγματική παράμετρος ικανοποιεί $\theta_1^* \in [1, 2]$), έχουμε $e_{\theta 1} \text{Proj}_1(\hat{\theta}_1, F_1) \le e_{\theta 1} F_1$. Έτσι:
+\[ \dot{V} \le e_{\theta 1} e_y \phi_1 - \frac{\sigma}{\gamma_1} e_{\theta 1} \hat{\theta}_1 + e_{\theta 2} e_y \phi_{2m} - \frac{\sigma}{\gamma_2} e_{\theta 2} \hat{\theta}_2 \]
+\[ \dot{V} \le e_\theta^T \phi_m e_y - \sigma e_\theta^T \Gamma^{-1} \hat{\theta} \]
+όπου $\Gamma = \text{diag}(\gamma_1, \gamma_2)$.
+Αντικαθιστώντας $e_y = \eta - e_\theta^T \phi_m$:
+\[ \dot{V} \le -(e_\theta^T \phi_m)^2 + \eta e_\theta^T \phi_m - \sigma e_\theta^T \Gamma^{-1} e_\theta - \sigma e_\theta^T \Gamma^{-1} \theta^* \]
+Εφαρμόζοντας τις γνωστές ανισότητες $a b \le \frac{1}{2} a^2 + \frac{1}{2} b^2$:
+\[ \dot{V} \le -\frac{1}{2} (e_\theta^T \phi_m)^2 - \frac{\sigma}{2} e_\theta^T \Gamma^{-1} e_\theta + \frac{1}{2} \eta_0^2 + \frac{\sigma}{2} \theta^{*T} \Gamma^{-1} \theta^* \]
+\[ \dot{V} \le -\sigma V + \left( \frac{1}{2} \eta_0^2 + \sigma V_0 \right) \]
+όπου $V_0 = \frac{1}{2} \theta^{*T} \Gamma^{-1} \theta^*$.
+Από τη διαφορική ανισότητα $\dot{V} \le -\sigma V + c_0$, προκύπτει ότι η $V(t)$ είναι ομοιόμορφα φραγμένη, άρα το σφάλμα εκτίμησης $e_\theta(t)$ είναι φραγμένο για κάθε $t \ge 0$, αποτρέποντας την παραμετρική ολίσθηση.
+\end{answer}
+
+\newpage
+
+%======================================================================
+%	EXAM SECTION 6: JULY 2025
+%======================================================================
+\phantomsection
+\hypertarget{exam6}{}
+\pdfbookmark[1]{Ιούλιος 2025}{exam6}
+\examyear{Ιούλιος 2025}
+
+\begin{center}
+\textbf{\Large Ιούλιος 2025 -- Θέματα \& Λύσεις}
+\end{center}
+
+\begin{question}[ΘΕΜΑ 1 (Μονάδες: 3)]
+Έστω το σύστημα:
+\begin{equation}
+    \ddot{y}(t) - \theta_1 \dot{y}(t) + \theta_2 y(t) + b u(t) = 0
+\end{equation}
+όπου $y, u \in \mathbb{R}$ η έξοδος και η είσοδος του συστήματος, αντίστοιχα, με $y, u \in \mathcal{L}_\infty$. Επιπλέον, $b$ γνωστή σταθερά, και $\theta_1, \theta_2$ άγνωστες σταθερές. Θεωρήστε ότι μόνον η έξοδος $y$ και η είσοδος $u$ είναι μετρήσιμα.
+
+\begin{enumerate}[label=\roman*)]
+    \item Να σχεδιασθεί ευσταθής αλγόριθμος πραγματικού-χρόνου για την εκτίμηση των $\theta_1, \theta_2$, χρησιμοποιώντας την μέθοδο των ελαχίστων τετραγώνων με απώλεια μνήμης $\beta \ne 0$ (\textbf{2 μονάδες}).
+    \item Να αποδειχθεί ότι για διάνυσμα οπισθοδρόμησης $\phi \in \mathcal{L}_\infty$ και απώλεια μνήμης $\beta \ne 0$, ο πίνακας $P^{-1} \in \mathcal{L}_\infty$ (\textbf{1 μονάδα}).
+\end{enumerate}
+\end{question}
+
+\begin{answer}
+\textbf{i) Σχεδιασμός Αναδρομικού Αλγορίθμου Ελαχίστων Τετραγώνων (RLS) με Απώλεια Μνήμης}
+
+\textbf{Βήμα 1: Γραμμική Παραμετροποίηση}
+Γράφουμε τη διαφορική εξίσωση στη μορφή:
+\[ \ddot{y}(t) = \theta_1 \dot{y}(t) - \theta_2 y(t) - b u(t) \]
+Επειδή οι παράγωγοι $\dot{y}, \ddot{y}$ δεν είναι μετρήσιμες, εισάγουμε ένα σταθερό Hurwitz φίλτρο 2ης τάξης $\Lambda(s) = s^2 + \lambda_1 s + \lambda_0$ με $\lambda_1, \lambda_0 > 0$. Διαιρώντας τη διαφορική εξίσωση με το $\Lambda(s)$:
+\[ \frac{s^2}{\Lambda(s)} y = \theta_1 \frac{s}{\Lambda(s)} y - \theta_2 \frac{1}{\Lambda(s)} y - b \frac{1}{\Lambda(s)} u \]
+Αναπτύσσοντας το αριστερό μέλος:
+\[ \frac{s^2}{\Lambda(s)} y = \frac{s^2 + \lambda_1 s + \lambda_0 - (\lambda_1 s + \lambda_0)}{\Lambda(s)} y = y - \lambda_1 \frac{s}{\Lambda(s)} y - \lambda_0 \frac{1}{\Lambda(s)} y \]
+Αντικαθιστώντας, προκύπτει:
+\[ y - \lambda_1 \frac{s}{\Lambda(s)} y - \lambda_0 \frac{1}{\Lambda(s)} y = \theta_1 \frac{s}{\Lambda(s)} y - \theta_2 \frac{1}{\Lambda(s)} y - b \frac{1}{\Lambda(s)} u \]
+\[ y + b \left( \frac{1}{\Lambda(s)} u \right) = (\theta_1 + \lambda_1) \frac{s}{\Lambda(s)} y + (\lambda_0 - \theta_2) \frac{1}{\Lambda(s)} y \]
+Ορίζουμε τα φιλτραρισμένα σήματα:
+\[ \phi_1 = \frac{s}{\Lambda(s)} y, \quad \phi_2 = \frac{1}{\Lambda(s)} y, \quad \phi_3 = \frac{1}{\Lambda(s)} u \]
+Και τη γραμμική παραμετροποίηση:
+\[ z(t) = \theta^{*T} \phi(t) \]
+όπου:
+\[ z(t) = y(t) + b \phi_3(t), \quad \phi(t) = \begin{bmatrix} \phi_1(t) \\ \phi_2(t) \end{bmatrix}, \quad \theta^* = \begin{bmatrix} \theta_1 + \lambda_1 \\ \lambda_0 - \theta_2 \end{bmatrix} \]
+Από τις εκτιμήσεις $\hat{\theta}(t) = [\hat{\theta}_1(t), \hat{\theta}_2(t)]^T$, λαμβάνουμε τις φυσικές παραμέτρους ως $\hat{\theta}_1(t) - \lambda_1$ και $\lambda_0 - \hat{\theta}_2(t)$.
+
+\textbf{Βήμα 2: Αλγόριθμος RLS με Απώλεια Μνήμης ($\beta > 0$)}
+Οι εξισώσεις του αλγορίθμου εκτίμησης είναι:
+\[ \dot{\hat{\theta}}(t) = P(t) e(t) \phi(t) \]
+\[ \dot{P}(t) = \beta P(t) - P(t) \phi(t) \phi^T(t) P(t), \quad P(0) = P_0 = P_0^T > 0 \]
+όπου:
+\[ e(t) = z(t) - \hat{\theta}^T(t) \phi(t) \]
+και $\beta > 0$ είναι ο ρυθμός απώλειας μνήμης (forgetting factor).
+
+\textbf{ii) Απόδειξη ότι $P^{-1} \in \mathcal{L}_\infty$}
+
+Θέλουμε να αποδείξουμε ότι ο αντίστροφος πίνακας συνδιακύμανσης $P^{-1}(t)$ παραμένει φραγμένος.
+Χρησιμοποιώντας την ταυτότητα παραγώγισης $\frac{d}{dt}(P^{-1}) = -P^{-1} \dot{P} P^{-1}$ και αντικαθιστώντας τη δυναμική του $P(t)$:
+\[ \frac{d}{dt}(P^{-1}(t)) = -P^{-1} \left( \beta P - P \phi \phi^T P \right) P^{-1} = -\beta P^{-1}(t) + \phi(t) \phi^T(t) \]
+Πρόκειται για μια γραμμική διαφορική εξίσωση 1ης τάξης ως προς $P^{-1}(t)$:
+\[ \dot{P}^{-1}(t) + \beta P^{-1}(t) = \phi(t) \phi^T(t) \]
+Η αναλυτική λύση της εξίσωσης αυτής είναι:
+\[ P^{-1}(t) = P^{-1}(0) e^{-\beta t} + \int_0^t e^{-\beta(t-\tau)} \phi(\tau) \phi^T(\tau) d\tau \]
+Παίρνοντας νόρμες και στα δύο μέλη:
+\[ \|P^{-1}(t)\| \le \|P^{-1}(0)\| e^{-\beta t} + \int_0^t e^{-\beta(t-\tau)} \|\phi(\tau) \phi^T(\tau)\| d\tau \]
+Εφόσον $\phi \in \mathcal{L}_\infty$, υπάρχει σταθερά $M_\phi > 0$ τέτοια ώστε $\|\phi(\tau) \phi^T(\tau)\| = \|\phi(\tau)\|^2 \le M_\phi$ για κάθε $\tau \ge 0$. Συνεπώς:
+\[ \|P^{-1}(t)\| \le \|P^{-1}(0)\| e^{-\beta t} + M_\phi \int_0^t e^{-\beta(t-\tau)} d\tau \]
+\[ \|P^{-1}(t)\| \le \|P^{-1}(0)\| e^{-\beta t} + \frac{M_\phi}{\beta} \left( 1 - e^{-\beta t} \right) \]
+Εφόσον $e^{-\beta t} \le 1$ για κάθε $t \ge 0$ και $\beta > 0$:
+\[ \|P^{-1}(t)\| \le \|P^{-1}(0)\| + \frac{M_\phi}{\beta} < \infty \]
+Άρα ο πίνακας $P^{-1}(t)$ είναι ομοιόμορφα φραγμένος, δηλαδή $P^{-1} \in \mathcal{L}_\infty$.
+\end{answer}
+
+\begin{question}[ΘΕΜΑ 2 (Μονάδες: 3)]
+Δίνεται το σύστημα:
+\begin{equation}
+    y(s) = \frac{\theta_1}{s^2 + a s + \theta_2} u(s)
+\end{equation}
+όπου η έξοδος $y \in \mathbb{R}$ και η είσοδος $u \in \mathbb{R}$ είναι μετρήσιμα με $y, u \in \mathcal{L}_\infty$. Η σταθερά $a > 0$ είναι γνωστή, ενώ οι παράμετροι $\theta_1, \theta_2$ άγνωστες. Γνωρίζουμε επίσης ότι $\theta_1 \in [1,2]$ και $\theta_2 > 0$.
+
+\begin{enumerate}[label=\roman*)]
+    \item Να μεταφερθεί το σύστημα στον χώρο των εξισώσεων κατάστασης (\textbf{1 μονάδα}).
+    \item Να σχεδιασθεί ευσταθής αλγόριθμος πραγματικού-χρόνου για την εκτίμηση των $\theta_1, \theta_2$ που να εγγυάται επίσης ότι $\hat{\theta}_1(t) \in [1,2]$ και $\hat{\theta}_2(t) > 0$, $\forall t \ge 0$. Να αιτιολογήσετε την επιλογή της μεθοδολογίας που χρησιμοποιήσατε (\textbf{2 μονάδες}).
+\end{enumerate}
+\end{question}
+
+\begin{answer}
+\textbf{i) Μεταφορά στο Χώρο Καταστάσεων}
+
+Η διαφορική εξίσωση του συστήματος είναι:
+\[ \ddot{y}(t) + a \dot{y}(t) + \theta_2 y(t) = \theta_1 u(t) \]
+Ορίζουμε ως μεταβλητές κατάστασης $x_1 = y$ και $x_2 = \dot{y}$. Οι εξισώσεις κατάστασης είναι:
+\begin{align*}
+    \dot{x}_1 &= x_2 \\
+    \dot{x}_2 &= -a x_2 - \theta_2 x_1 + \theta_1 u
+\end{align*}
+με έξοδο $y = x_1$.
+
+\textbf{ii) Σχεδιασμός Αλγορίθμου Εκτίμησης με Περιορισμούς}
+
+\textbf{Αιτιολόγηση Μεθοδολογίας:}
+1) Επειδή η παράγωγος $\dot{y}$ (η κατάσταση $x_2$) δεν είναι μετρήσιμη, δεν μπορούμε να χρησιμοποιήσουμε Lyapunov σχεδιασμό βασισμένο σε σφάλμα κατάστασης (observer-based). Για το λόγο αυτό, χρησιμοποιούμε **φιλτράρισμα σημάτων** ώστε να αποφύγουμε την ανάγκη μέτρησης παραγώγων.
+2) Για την ενσωμάτωση των περιορισμών $\hat{\theta}_1 \in [1,2]$ και $\hat{\theta}_2 > 0$ στον αλγόριθμο εκτίμησης, χρησιμοποιούμε τη **μέθοδο προβολής (Projection)**, η οποία εγγυάται ότι οι εκτιμήσεις θα παραμείνουν εντός των επιθυμητών ορίων εφόσον ξεκινήσουν από αυτά.
+
+\textbf{Βήμα 1: Γραμμική Παραμετροποίηση}
+Φιλτράρουμε τη διαφορική εξίσωση $\ddot{y} + a \dot{y} = \theta_1 u - \theta_2 y$ με Hurwitz φίλτρο 2ης τάξης $\Lambda(s) = s^2 + \lambda_1 s + \lambda_0$:
+\[ \frac{s^2 + a s}{\Lambda(s)} y = \theta_1 \frac{1}{\Lambda(s)} u - \theta_2 \frac{1}{\Lambda(s)} y \]
+Αναπτύσσουμε το αριστερό μέλος:
+\[ y - (\lambda_1 - a) \frac{s}{\Lambda(s)} y - \lambda_0 \frac{1}{\Lambda(s)} y = \theta_1 \frac{1}{\Lambda(s)} u - \theta_2 \frac{1}{\Lambda(s)} y \]
+\[ y - (\lambda_1 - a) \phi_1 - \lambda_0 \phi_2 = \theta_1 \phi_3 - \theta_2 \phi_2 \]
+όπου:
+\[ \phi_1 = \frac{s}{\Lambda(s)} y, \quad \phi_2 = \frac{1}{\Lambda(s)} y, \quad \phi_3 = \frac{1}{\Lambda(s)} u \]
+Ορίζουμε:
+\[ z(t) = y(t) - (\lambda_1 - a) \phi_1(t) - \lambda_0 \phi_2(t) \]
+\[ \phi(t) = \begin{bmatrix} \phi_3(t) \\ -\phi_2(t) \end{bmatrix} = \begin{bmatrix} \frac{1}{\Lambda(s)} u(t) \\ -\frac{1}{\Lambda(s)} y(t) \end{bmatrix}, \quad \theta^* = \begin{bmatrix} \theta_1 \\ \theta_2 \end{bmatrix} \]
+Έτσι προκύπτει η γραμμική παραμετροποίηση:
+\[ z(t) = \theta^{*T} \phi(t) \]
+
+\textbf{Βήμα 2: Αλγόριθμος Εκτίμησης Κλίσης με Προβολή}
+Ορίζουμε το σφάλμα εκτίμησης:
+\[ e_y(t) = z(t) - \hat{\theta}^T(t) \phi(t) \]
+Οι νόμοι προσαρμογής των παραμέτρων είναι:
+\begin{align*}
+    \dot{\hat{\theta}}_1(t) &= \text{Proj}_1\left(\hat{\theta}_1, \;\; \gamma_1 e_y \phi_3\right) \\
+    \dot{\hat{\theta}}_2(t) &= \text{Proj}_2\left(\hat{\theta}_2, \;\; -\gamma_2 e_y \phi_2\right)
+\end{align*}
+όπου $\gamma_1, \gamma_2 > 0$ είναι τα κέρδη προσαρμογής και οι τελεστές προβολής ορίζονται ως:
+\[ \text{Proj}_1\left(\hat{\theta}_1, Y_1\right) = \begin{cases}
+0, & \text{αν } \hat{\theta}_1 = 2 \text{ και } Y_1 > 0 \\
+0, & \text{αν } \hat{\theta}_1 = 1 \text{ και } Y_1 < 0 \\
+Y_1, & \text{διαφορετικά}
+\end{cases} \]
+\[ \text{Proj}_2\left(\hat{\theta}_2, Y_2\right) = \begin{cases}
+0, & \text{αν } \hat{\theta}_2 = \delta \text{ και } Y_2 < 0 \\
+Y_2, & \text{διαφορετικά}
+\end{cases} \]
+όπου $\delta > 0$ είναι ένα πολύ μικρό κάτω φράγμα (π.χ. $\delta = 10^{-4}$) για να εξασφαλιστεί ότι $\hat{\theta}_2(t)$ παραμένει αυστηρά θετικό ($\hat{\theta}_2(t) \ge \delta > 0$).
+Ορίζουμε το σφάλμα παραμέτρων $e_\theta(t) = \hat{\theta}(t) - \theta^*$. Η ευστάθεια αποδεικνύεται χρησιμοποιώντας τη Lyapunov συνάρτηση $V = \frac{1}{2\gamma_1} e_{\theta 1}^2 + \frac{1}{2\gamma_2} e_{\theta 2}^2$.
+Η χρονική παράγωγός της είναι:
+\[ \dot{V} = \frac{1}{\gamma_1} e_{\theta 1} \dot{\hat{\theta}}_1 + \frac{1}{\gamma_2} e_{\theta 2} \dot{\hat{\theta}}_2 = \frac{1}{\gamma_1} e_{\theta 1} \text{Proj}_1\left(\hat{\theta}_1, Y_1\right) + \frac{1}{\gamma_2} e_{\theta 2} \text{Proj}_2\left(\hat{\theta}_2, Y_2\right) \]
+Χρησιμοποιώντας την ιδιότητα του τελεστή προβολής (εφόσον $\theta_1^* \in [1,2]$ και $\theta_2^* > 0$), έχουμε $e_{\theta i} \text{Proj}_i(\hat{\theta}_i, Y_i) \le e_{\theta i} Y_i$. Συνεπώς:
+\[ \dot{V} \le e_{\theta 1} e_y \phi_3 - e_{\theta 2} e_y \phi_2 = e_y \left( e_{\theta 1} \phi_3 - e_{\theta 2} \phi_2 \right) = e_y e_\theta^T \phi \]
+Επειδή $e_y = -e_\theta^T \phi$ (αφού $z = \theta^{*T}\phi$), έχουμε:
+\[ \dot{V} \le -(e_\theta^T \phi)^2 \le 0 \]
+που εγγυάται τη σφαλερή/παραμετρική ευστάθεια του συστήματος.
+\end{answer}
+
+\begin{question}[ΘΕΜΑ 3 (Μονάδες: 4)]
+Θεωρήστε το μη-γραμμικό σύστημα μάζας-αποσβεστήρα-ελατηρίου:
+\begin{equation}
+    m \ddot{x}_1(t) = -k f(x_1(t)) - c x_2(t) + u(t) + d(t)
+\end{equation}
+όπου $x_1$ η θέση της μάζας, $x_2$ η ταχύτητα, $u$ μια είσοδος ελέγχου, $f(x_1)$ μια γνωστή μη-γραμμική συνάρτηση, και $d \in \mathcal{L}_\infty$ μια άγνωστη εξωτερική διαταραχή. Η μάζα $m$ και ο συντελεστής απόσβεσης $c > 0$ είναι γνωστά, ενώ η παράμετρος του ελατηρίου $k > 0$ άγνωστη. Οι καταστάσεις $x_1, x_2$ του συστήματος καθώς και η είσοδος $u$ θεωρούνται μετρήσιμα.
+
+\begin{enumerate}[label=\roman*)]
+    \item Να σχεδιασθεί αλγόριθμος με την μέθοδο Lyapunov για την εκτίμηση του $k$ και να αποδειχθεί η ευστάθεια της μεθόδου όταν $x_1, x_2, u \in \mathcal{L}_\infty$ and $d(t) = 0$ (\textbf{2 μονάδες}).
+    \item Να μελετηθεί η ευστάθεια της μεθόδου καθώς και η συμπεριφορά των σφαλμάτων μοντελοποίησης $e_{xi}(t) = x_i(t) - \hat{x}_i(t)$, $i = 1, 2$, και του παραμετρικού σφάλματος $e_k(t) = \hat{k}(t) - k$, στην μόνιμη κατάσταση $t = +\infty$, όταν επιπλέον $d(t) \ne 0$, $\forall t \ge 0$ (\textbf{2 μονάδες}).
+\end{enumerate}
+\end{question}
+
+\begin{answer}
+\textbf{i) Σχεδιασμός Αλγορίθμου Εκτίμησης κατά Lyapunov ($d(t) = 0$)}
+
+Εφόσον οι $x_1, x_2$ είναι μετρήσιμες, η δυναμική του συστήματος γράφεται ως:
+\begin{align*}
+    \dot{x}_1 &= x_2 \\
+    \dot{x}_2 &= \frac{1}{m} \left( -k f(x_1) - c x_2 + u \right)
+\end{align*}
+Σχεδιάζουμε το μοντέλο εκτίμησης κατάστασης (παρατηρητή):
+\begin{align*}
+    \dot{\hat{x}}_1 &= x_2 + g_1 e_{x1} \\
+    \dot{\hat{x}}_2 &= \frac{1}{m} \left( -\hat{k} f(x_1) - c x_2 + u \right) + g_2 e_{x2}
+\end{align*}
+όπου $e_{x1} = x_1 - \hat{x}_1$, $e_{x2} = x_2 - \hat{x}_2$ και $g_1, g_2 > 0$ θετικά κέρδη.
+Η δυναμική των σφαλμάτων εκτίμησης είναι:
+\begin{align*}
+    \dot{e}_{x1} &= -g_1 e_{x1} \\
+    \dot{e}_{x2} &= \frac{1}{m} \tilde{k} f(x_1) - g_2 e_{x2}
+\end{align*}
+όπου $\tilde{k} = \hat{k} - k$ το παραμετρικό σφάλμα $e_k(t)$.
+Επιλέγουμε τη Lyapunov συνάρτηση:
+\[ V(e_{x2}, \tilde{k}) = \frac{1}{2} m e_{x2}^2 + \frac{1}{2\gamma} \tilde{k}^2 \]
+όπου $\gamma > 0$ το κέρδος προσαρμογής. Η χρονική παράγωγος της $V$ είναι:
+\[ \dot{V} = m e_{x2} \dot{e}_{x2} + \frac{1}{\gamma} \tilde{k} \dot{\hat{k}} = e_{x2} \tilde{k} f(x_1) - m g_2 e_{x2}^2 + \frac{1}{\gamma} \tilde{k} \dot{\hat{k}} = -m g_2 e_{x2}^2 + \tilde{k} \left( e_{x2} f(x_1) + \frac{1}{\gamma} \dot{\hat{k}} \right) \]
+Για να απαλείψουμε τον όρο με το $\tilde{k}$, επιλέγουμε τον νόμο προσαρμογής:
+\[ \dot{\hat{k}} = -\gamma e_{x2} f(x_1) \]
+Τότε:
+\[ \dot{V} = -m g_2 e_{x2}^2 \le 0 \]
+\textbf{Απόδειξη Ευστάθειας:}
+1) $V(t) \ge 0, \dot{V}(t) \le 0 \implies V \in \mathcal{L}_\infty \implies e_{x2}, \tilde{k} \in \mathcal{L}_\infty$.
+2) Ολοκληρώνοντας τη $\dot{V}$: $\int_0^\infty e_{x2}^2(t) dt < \infty \implies e_{x2} \in \mathcal{L}_2$.
+3) Εφόσον $x_1, x_2, u \in \mathcal{L}_\infty$, το $f(x_1)$ είναι φραγμένο. Από τη δυναμική του $e_{x2}$, η παράγωγος $\dot{e}_{x2} \in \mathcal{L}_\infty$.
+4) Σύμφωνα με το Λήμμα του Barbalat, $\lim_{t \to \infty} e_{x2}(t) = 0$.
+5) Για το σφάλμα θέσης: $\dot{e}_{x1} = -g_1 e_{x1} \implies e_{x1}(t) = e_{x1}(0) e^{-g_1 t} \implies \lim_{t \to \infty} e_{x1}(t) = 0$.
+
+\textbf{ii) Μελέτη Ευστάθειας και Συμπεριφοράς Σφαλμάτων με Διαταραχή ($d(t) \ne 0$)}
+
+Όταν $d(t) \ne 0$, η δυναμική των σφαλμάτων εκτίμησης γίνεται:
+\begin{align*}
+    \dot{e}_{x1} &= -g_1 e_{x1} \\
+    \dot{e}_{x2} &= -g_2 e_{x2} + \frac{1}{m} \tilde{k} f(x_1) + \frac{1}{m} d(t)
+\end{align*}
+και ο νόμος προσαρμογής παραμένει $\dot{\tilde{k}} = -\gamma e_{x2} f(x_1)$.
+\begin{itemize}
+    \item \textbf{Σφάλμα Θέσης $e_{x1}(t)$:} Η δυναμική $\dot{e}_{x1} = -g_1 e_{x1}$ είναι ανεξάρτητη της διαταραχής και του παραμετρικού σφάλματος. Συνεπώς, η θέση συγκλίνει πάντα εκθετικά στο μηδέν:
+    \[ \lim_{t \to \infty} e_{x1}(t) = 0 \]
+    \item \textbf{Σφάλματα $e_{x2}(t)$ και $\tilde{k}(t)$:} 
+    Η παράγωγος της $V$ γίνεται:
+    \[ \dot{V} = -m g_2 e_{x2}^2 + e_{x2} d(t) \]
+    Εάν η είσοδος διεγείρει το σύστημα έτσι ώστε η $f(x_1)$ να γίνει μηδέν (π.χ. σύγκλιση στην ισορροπία $x_1 = 0$), τότε $\dot{\tilde{k}} = 0 \implies \tilde{k}(t) = \text{const}$. Το σφάλμα ταχύτητας $e_{x2}(t)$ θα παραμείνει φραγμένο αλλά μη μηδενικό, ακολουθώντας τη διαταραχή $d(t)$.
+    
+    Εάν η $f(x_1(t)) \ne 0$, η παρουσία της διαταραχής $d(t)$ μπορεί να οδηγήσει σε **παραμετρική ολίσθηση (parameter drift)**. Επειδή δεν υπάρχει όρος απόσβεσης στην $V$ για το $\tilde{k}$, η συνεχής ολοκλήρωση του σφάλματος $e_{x2}$ μπορεί να οδηγήσει το παραμετρικό σφάλμα $e_k(t) \to \infty$, προκαλώντας αστάθεια.
+    
+    Για την ανάλυση της μόνιμης κατάστασης, αν υποθέσουμε σταθερή διαταραχή $d(t) = D_0 \ne 0$ και η είσοδος κρατάει το σύστημα σε κατάσταση όπου $f(x_1(t)) = F_0 \ne 0$ (συνθήκη Persistent Excitation), το σύστημα σφαλμάτων $(e_{x2}, \tilde{k})$ είναι γραμμικό χρονικά αμετάβλητο:
+    \[ \begin{bmatrix} \dot{e}_{x2} \\ \dot{\tilde{k}} \end{bmatrix} = \begin{bmatrix} -g_2 & \frac{F_0}{m} \\ -\gamma F_0 & 0 \end{bmatrix} \begin{bmatrix} e_{x2} \\ \tilde{k} \end{bmatrix} + \begin{bmatrix} \frac{D_0}{m} \\ 0 \end{bmatrix} \]
+    Το σύστημα αυτό είναι ασυμπτωτικά ευσταθές καθώς η χαρακτηριστική εξίσωση $s^2 + g_2 s + \frac{\gamma F_0^2}{m} = 0$ έχει πόλους στο αριστερό ημιεπίπεδο. Στη μόνιμη κατάσταση ($t \to \infty$):
+    \[ e_{x2}(\infty) = 0, \quad e_k(\infty) = \tilde{k}(\infty) = -\frac{D_0}{F_0} \]
+    Δηλαδή, με επιμένουσα διέγερση, τα σφάλματα κατάστασης συγκλίνουν στο μηδέν, αλλά το παραμετρικό σφάλμα συγκλίνει σε μια σταθερή απόκλιση (bias) ανάλογη της διαταραχής. Χωρίς επιμένουσα διέγερση, ο αλγόριθμος μπορεί να παρουσιάσει αστάθεια λόγω παραμετρικής ολίσθησης, απαιτώντας τη χρήση τεχνικών όπως η $\sigma$-τροποποίηση ή η νεκρή ζώνη.
+\end{itemize}
+\end{answer}
+
+\end{document}
